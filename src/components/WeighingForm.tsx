@@ -51,8 +51,8 @@ const WeighingForm = ({ onRecordAdded }: WeighingFormProps) => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+    <div className="flex flex-col gap-4 md:gap-6 p-4 md:p-6 w-full max-w-lg">
+      <div className="grid grid-cols-2 gap-x-4 md:gap-x-8 gap-y-3 md:gap-y-4">
         <div>
           <Label className="text-sm text-muted-foreground mb-1">Tonase</Label>
           <Input
@@ -84,7 +84,7 @@ const WeighingForm = ({ onRecordAdded }: WeighingFormProps) => {
           <Label className="text-sm text-muted-foreground mb-1">Tanggal</Label>
           <Input value={tanggal} readOnly className="border-foreground/30 bg-muted/50" />
         </div>
-        <div>
+        <div className="col-span-1">
           <Label className="text-sm text-muted-foreground mb-1">Supplier</Label>
           <Input
             value={supplier}
@@ -95,11 +95,11 @@ const WeighingForm = ({ onRecordAdded }: WeighingFormProps) => {
         </div>
       </div>
 
-      <div className="flex justify-center mt-4">
+      <div className="flex justify-center mt-2 md:mt-4">
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-48 h-48 rounded-full bg-accent text-accent-foreground text-3xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
+          className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-accent text-accent-foreground text-2xl md:text-3xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
         >
           {loading ? "..." : "Timbang"}
         </button>
