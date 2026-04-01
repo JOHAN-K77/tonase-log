@@ -19,11 +19,11 @@ const Index = () => {
   }, [fetchRecords]);
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <div className="flex-1 flex items-center justify-center">
+    <div className="min-h-screen bg-background flex flex-col-reverse md:flex-row">
+      <div className="flex-1 flex items-center justify-center p-4">
         <WeighingForm onRecordAdded={fetchRecords} />
       </div>
-      <div className="w-[420px] border-l border-border bg-card flex flex-col">
+      <div className="w-full md:w-[420px] border-b md:border-b-0 md:border-l border-border bg-card flex flex-col max-h-[50vh] md:max-h-none">
         <RecordList records={records} />
       </div>
     </div>
