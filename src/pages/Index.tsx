@@ -1,16 +1,33 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect, useState, useCallback } from "react";
+import WeighingForm from "@/components/WeighingForm";
+import RecordList from "@/components/RecordList";
+import { supabase } from "@/lib/supabase";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [records, setRecords] = useState<any[]>([]);
+
+  const fetchRecords = useCallback(async () => {
+    const { data } = await supabase
+      .from("weighing_records")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (data) setRecords(data);
+  }, []);
+
+  useEffect(() => {
+    fetchRecords();
+  }, [fetchRecords]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background flex">
+      <div className="flex-1 flex items-center justify-center">
+        <WeighingForm onRecordAdded={fetchRecords} />
+      </div>
+      <div className="w-[420px] border-l border-border bg-card flex flex-col">
+        <RecordList records={records} />
+      </div>
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
