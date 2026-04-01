@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      weighing_records: {
+        Row: {
+          created_at: string
+          id: string
+          jenis: string
+          supplier: string
+          tanggal: string
+          tonase: number
+          waktu: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jenis: string
+          supplier: string
+          tanggal: string
+          tonase: number
+          waktu: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jenis?: string
+          supplier?: string
+          tanggal?: string
+          tonase?: number
+          waktu?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
