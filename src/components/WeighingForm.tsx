@@ -76,8 +76,9 @@ const WeighingForm = ({ onRecordAdded }: WeighingFormProps) => {
           >
             <option value="Kardus">Kardus</option>
             <option value="Kertas">Kertas</option>
-            <option value="Plastik">Plastik</option>
-            <option value="Besi">Besi</option>
+            <option value="Buram">Buram</option>
+            <option value="Duplex">Duplex</option>
+            <option value="Non kertas">Non kertas</option>
           </select>
         </div>
         <div>
