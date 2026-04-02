@@ -19,27 +19,36 @@ export type Database = {
           created_at: string
           id: string
           jenis: string
+          netto: number | null
+          printed: boolean
           supplier: string
           tanggal: string
-          tonase: number
+          tonase_awal: number
+          tonase_kosong: number | null
           waktu: string
         }
         Insert: {
           created_at?: string
           id?: string
           jenis: string
+          netto?: number | null
+          printed?: boolean
           supplier: string
           tanggal: string
-          tonase: number
+          tonase_awal: number
+          tonase_kosong?: number | null
           waktu: string
         }
         Update: {
           created_at?: string
           id?: string
           jenis?: string
+          netto?: number | null
+          printed?: boolean
           supplier?: string
           tanggal?: string
-          tonase?: number
+          tonase_awal?: number
+          tonase_kosong?: number | null
           waktu?: string
         }
         Relationships: []

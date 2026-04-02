@@ -1,17 +1,24 @@
+import RecordDetail from "./RecordDetail";
+
 interface Record {
   id: string;
-  tonase: number;
+  tonase_awal: number;
   jenis: string;
   supplier: string;
   waktu: string;
   tanggal: string;
+  tonase_kosong: number | null;
+  netto: number | null;
+  printed: boolean;
 }
 
 interface RecordListProps {
   records: Record[];
+  selectedRecord: Record | null;
+  onSelectRecord: (record: Record | null) => void;
 }
 
-const RecordList = ({ records }: RecordListProps) => {
+const RecordList = ({ records, selectedRecord, onSelectRecord }: RecordListProps) => {
   const formatDate = (tanggal: string, waktu: string) => {
     const d = new Date(tanggal);
     const day = String(d.getDate()).padStart(2, "0");
@@ -19,6 +26,10 @@ const RecordList = ({ records }: RecordListProps) => {
     const year = d.getFullYear();
     return `${day}/${month}/${year}\n${waktu}`;
   };
+
+  if (selectedRecord) {
+    return <RecordDetail record={selectedRecord} onClose={() => onSelectRecord(null)} />;
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -30,9 +41,13 @@ const RecordList = ({ records }: RecordListProps) => {
           <div className="p-6 text-center text-muted-foreground">Belum ada data</div>
         )}
         {records.map((r) => (
-          <div key={r.id} className="px-6 py-3">
+          <div
+            key={r.id}
+            className="px-6 py-3 cursor-pointer hover:bg-muted/50 transition-colors"
+            onClick={() => onSelectRecord(r)}
+          >
             <div className="flex justify-between items-start">
-              <span className="text-xl font-bold">{r.tonase} kg</span>
+              <span className="text-xl font-bold">{r.tonase_awal} kg</span>
               <span className="text-sm text-right whitespace-pre-line text-muted-foreground">
                 {formatDate(r.tanggal, r.waktu)}
               </span>
