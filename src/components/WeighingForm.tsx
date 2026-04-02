@@ -100,7 +100,7 @@ const WeighingForm = ({ onRecordAdded }: WeighingFormProps) => {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-accent text-accent-foreground text-2xl md:text-3xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
+          className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-[#0070C0] md:bg-accent text-white md:text-accent-foreground text-2xl md:text-3xl font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
         >
           {loading ? "..." : "Timbang"}
         </button>

@@ -25,7 +25,7 @@ const RecordList = ({ records }: RecordListProps) => {
       <div className="bg-primary text-primary-foreground px-6 py-4">
         <h2 className="text-3xl font-bold">Pencatatan</h2>
       </div>
-      <div className="flex-1 overflow-y-auto divide-y divide-border">
+      <div className="flex-1 overflow-y-auto min-h-0 divide-y divide-border">
         {records.length === 0 && (
           <div className="p-6 text-center text-muted-foreground">Belum ada data</div>
         )}
