@@ -4,11 +4,25 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
-interface WeighingFormProps {
-  onRecordAdded: () => void;
+interface WeighingRecord {
+  id: string;
+  tonase_awal: number;
+  jenis: string;
+  supplier: string;
+  waktu: string;
+  tanggal: string;
+  tonase_kosong: number | null;
+  netto: number | null;
+  printed: boolean;
 }
 
-const WeighingForm = ({ onRecordAdded }: WeighingFormProps) => {
+interface WeighingFormProps {
+  onRecordAdded: () => void;
+  selectedRecord: WeighingRecord | null;
+  onClearSelection: () => void;
+}
+
+const WeighingForm = ({ onRecordAdded, selectedRecord, onClearSelection }: WeighingFormProps) => {
   const [tonase, setTonase] = useState("");
   const [jenis, setJenis] = useState("Kardus");
   const [supplier, setSupplier] = useState("");
@@ -19,34 +33,65 @@ const WeighingForm = ({ onRecordAdded }: WeighingFormProps) => {
   const tanggal = now.toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" });
 
   const handleSubmit = async () => {
-    if (!tonase || !supplier) {
-      toast.error("Tonase dan Supplier harus diisi!");
+    if (!tonase) {
+      toast.error("Tonase harus diisi!");
       return;
     }
 
     setLoading(true);
-    const currentDate = new Date();
-    const timeStr = currentDate.toTimeString().slice(0, 5);
-    const dateStr = currentDate.toISOString().slice(0, 10);
 
-    const { error } = await supabase.from("weighing_records").insert({
-      tonase: parseInt(tonase),
-      jenis,
-      supplier,
-      waktu: timeStr,
-      tanggal: dateStr,
-    });
+    if (selectedRecord) {
+      // Second weigh: update tonase_kosong and netto
+      const tonaseKosong = parseInt(tonase);
+      const netto = selectedRecord.tonase_awal - tonaseKosong;
 
-    setLoading(false);
+      const { error } = await supabase
+        .from("weighing_records")
+        .update({ tonase_kosong: tonaseKosong, netto })
+        .eq("id", selectedRecord.id);
 
-    if (error) {
-      toast.error("Gagal menyimpan data!");
-      console.error(error);
+      setLoading(false);
+
+      if (error) {
+        toast.error("Gagal menyimpan data!");
+        console.error(error);
+      } else {
+        toast.success("Timbang kosong berhasil disimpan!");
+        setTonase("");
+        onClearSelection();
+        onRecordAdded();
+      }
     } else {
-      toast.success("Data berhasil disimpan!");
-      setTonase("");
-      setSupplier("");
-      onRecordAdded();
+      // First weigh: new record
+      if (!supplier) {
+        toast.error("Supplier harus diisi!");
+        setLoading(false);
+        return;
+      }
+
+      const currentDate = new Date();
+      const timeStr = currentDate.toTimeString().slice(0, 5);
+      const dateStr = currentDate.toISOString().slice(0, 10);
+
+      const { error } = await supabase.from("weighing_records").insert({
+        tonase_awal: parseInt(tonase),
+        jenis,
+        supplier,
+        waktu: timeStr,
+        tanggal: dateStr,
+      });
+
+      setLoading(false);
+
+      if (error) {
+        toast.error("Gagal menyimpan data!");
+        console.error(error);
+      } else {
+        toast.success("Data berhasil disimpan!");
+        setTonase("");
+        setSupplier("");
+        onRecordAdded();
+      }
     }
   };
 
@@ -54,7 +99,9 @@ const WeighingForm = ({ onRecordAdded }: WeighingFormProps) => {
     <div className="flex flex-col gap-4 md:gap-6 p-4 md:p-6 w-full max-w-lg">
       <div className="grid grid-cols-2 gap-x-4 md:gap-x-8 gap-y-3 md:gap-y-4">
         <div>
-          <Label className="text-sm text-muted-foreground mb-1">Tonase</Label>
+          <Label className="text-sm text-muted-foreground mb-1">
+            {selectedRecord ? "Tonase Kosong" : "Tonase"}
+          </Label>
           <Input
             type="number"
             value={tonase}
@@ -67,33 +114,45 @@ const WeighingForm = ({ onRecordAdded }: WeighingFormProps) => {
           <Label className="text-sm text-muted-foreground mb-1">Waktu</Label>
           <Input value={waktu} readOnly className="border-foreground/30 bg-muted/50" />
         </div>
-        <div>
-          <Label className="text-sm text-muted-foreground mb-1">Jenis</Label>
-          <select
-            value={jenis}
-            onChange={(e) => setJenis(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm"
-          >
-            <option value="Kardus">Kardus</option>
-            <option value="Kertas">Kertas</option>
-            <option value="Buram">Buram</option>
-            <option value="Duplex">Duplex</option>
-            <option value="Non kertas">Non kertas</option>
-          </select>
-        </div>
-        <div>
-          <Label className="text-sm text-muted-foreground mb-1">Tanggal</Label>
-          <Input value={tanggal} readOnly className="border-foreground/30 bg-muted/50" />
-        </div>
-        <div className="col-span-1">
-          <Label className="text-sm text-muted-foreground mb-1">Supplier</Label>
-          <Input
-            value={supplier}
-            onChange={(e) => setSupplier(e.target.value)}
-            placeholder="Nama supplier"
-            className="border-foreground/30"
-          />
-        </div>
+
+        {!selectedRecord && (
+          <>
+            <div>
+              <Label className="text-sm text-muted-foreground mb-1">Jenis</Label>
+              <select
+                value={jenis}
+                onChange={(e) => setJenis(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm"
+              >
+                <option value="Kardus">Kardus</option>
+                <option value="Kertas">Kertas</option>
+                <option value="Buram">Buram</option>
+                <option value="Duplex">Duplex</option>
+                <option value="Non kertas">Non kertas</option>
+              </select>
+            </div>
+            <div>
+              <Label className="text-sm text-muted-foreground mb-1">Tanggal</Label>
+              <Input value={tanggal} readOnly className="border-foreground/30 bg-muted/50" />
+            </div>
+            <div className="col-span-1">
+              <Label className="text-sm text-muted-foreground mb-1">Supplier</Label>
+              <Input
+                value={supplier}
+                onChange={(e) => setSupplier(e.target.value)}
+                placeholder="Nama supplier"
+                className="border-foreground/30"
+              />
+            </div>
+          </>
+        )}
+
+        {selectedRecord && (
+          <div>
+            <Label className="text-sm text-muted-foreground mb-1">Tanggal</Label>
+            <Input value={tanggal} readOnly className="border-foreground/30 bg-muted/50" />
+          </div>
+        )}
       </div>
 
       <div className="flex justify-center mt-2 md:mt-4">
