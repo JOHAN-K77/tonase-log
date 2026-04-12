@@ -40,7 +40,7 @@ const Index = () => {
       </div>
       <div className="w-full md:w-[420px] border-b md:border-b-0 md:border-l border-border bg-card flex flex-col max-h-[50vh] md:max-h-screen md:h-screen overflow-hidden">
         <RecordList
-          records={records.filter((r) => r.tonase_kosong === null)}
+          records={records}
           selectedRecord={selectedRecord}
           onSelectRecord={setSelectedRecord}
         />
