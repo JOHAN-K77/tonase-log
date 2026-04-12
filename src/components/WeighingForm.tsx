@@ -12,7 +12,7 @@ interface WeighingFormProps {
   onClearSelection: () => void;
 }
 
-const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, onClearSelection }: WeighingFormProps) => {
+const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: WeighingFormProps) => {
   const [tonase, setTonase] = useState("");
   const [jenis, setJenis] = useState("Kardus");
   const [supplier, setSupplier] = useState("");
