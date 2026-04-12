@@ -1,21 +1,10 @@
 import RecordDetail from "./RecordDetail";
-
-interface Record {
-  id: string;
-  tonase_awal: number;
-  jenis: string;
-  supplier: string;
-  waktu: string;
-  tanggal: string;
-  tonase_kosong: number | null;
-  netto: number | null;
-  printed: boolean;
-}
+import type { WeighingRecord } from "@/pages/Index";
 
 interface RecordListProps {
-  records: Record[];
-  selectedRecord: Record | null;
-  onSelectRecord: (record: Record | null) => void;
+  records: WeighingRecord[];
+  selectedRecord: WeighingRecord | null;
+  onSelectRecord: (record: WeighingRecord | null) => void;
 }
 
 const RecordList = ({ records, selectedRecord, onSelectRecord }: RecordListProps) => {
@@ -47,7 +36,12 @@ const RecordList = ({ records, selectedRecord, onSelectRecord }: RecordListProps
             onClick={() => onSelectRecord(r)}
           >
             <div className="flex justify-between items-start">
-              <span className="text-xl font-bold">{r.tonase_awal} kg</span>
+              <div>
+                <span className="text-xl font-bold">{r.tonase_awal} kg</span>
+                {r.tonase_kosong !== null && (
+                  <span className="text-muted-foreground text-lg"> → {r.tonase_kosong} kg</span>
+                )}
+              </div>
               <span className="text-sm text-right whitespace-pre-line text-muted-foreground">
                 {formatDate(r.tanggal, r.waktu)}
               </span>
@@ -55,6 +49,11 @@ const RecordList = ({ records, selectedRecord, onSelectRecord }: RecordListProps
             <div className="text-sm text-muted-foreground mt-1">
               {r.supplier} ({r.jenis})
             </div>
+            {r.tonase_kosong !== null && (
+              <div className="text-sm text-muted-foreground opacity-60">
+                {r.tonase_kosong} kg (kosong)
+              </div>
+            )}
           </div>
         ))}
       </div>
