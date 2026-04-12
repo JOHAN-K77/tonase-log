@@ -90,6 +90,17 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
       return;
     }
 
+    const tonaseValue = parseInt(tonase);
+    if (tonaseValue <= 0) {
+      toast.error("Tonase tidak boleh nol atau negatif!");
+      return;
+    }
+
+    if (selectedRecord && tonaseValue >= selectedRecord.tonase_awal) {
+      toast.error("Tonase kosong harus kurang dari tonase awal!");
+      return;
+    }
+
     if (selectedRecord) {
       // Second weigh
       const tonaseKosong = parseInt(tonase);
@@ -148,6 +159,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
           </Label>
           <Input
             type="number"
+            step="10"
             value={isPrinted ? (selectedRecord?.tonase_kosong?.toString() ?? "") : tonase}
             onChange={(e) => setTonase(e.target.value)}
             placeholder="0"
@@ -193,11 +205,22 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
         )}
 
         {selectedRecord && !isPrinted && (
-          <div>
-            <Label className="text-sm text-muted-foreground mb-1">Tanggal</Label>
-            <Input value={tanggal} readOnly className="border-foreground/30 bg-muted/50" />
-          </div>
+          <>
+            <div>
+              <Label className="text-sm text-muted-foreground mb-1">Jenis</Label>
+              <Input value={selectedRecord.jenis} readOnly className="border-foreground/30 bg-muted/50" />
+            </div>
+            <div>
+              <Label className="text-sm text-muted-foreground mb-1">Tanggal</Label>
+              <Input value={tanggal} readOnly className="border-foreground/30 bg-muted/50" />
+            </div>
+            <div className="col-span-1">
+              <Label className="text-sm text-muted-foreground mb-1">Supplier</Label>
+              <Input value={selectedRecord.supplier} readOnly className="border-foreground/30 bg-muted/50" />
+            </div>
+          </>
         )}
+
 
         {isPrinted && (
           <>
