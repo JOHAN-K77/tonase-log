@@ -9,7 +9,6 @@ interface WeighingFormProps {
   selectedRecord: WeighingRecord | null;
   onRecordAdded: (record: WeighingRecord) => void;
   onRecordUpdated: (record: WeighingRecord) => void;
-  onClearSelection: () => void;
 }
 
 const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: WeighingFormProps) => {
