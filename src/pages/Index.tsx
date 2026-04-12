@@ -1,9 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import WeighingForm from "@/components/WeighingForm";
 import RecordList from "@/components/RecordList";
-import { supabase } from "@/lib/supabase";
 
-interface WeighingRecord {
+export interface WeighingRecord {
   id: string;
   tonase_awal: number;
   jenis: string;
@@ -19,31 +18,30 @@ const Index = () => {
   const [records, setRecords] = useState<WeighingRecord[]>([]);
   const [selectedRecord, setSelectedRecord] = useState<WeighingRecord | null>(null);
 
-  const fetchRecords = useCallback(async () => {
-    const { data } = await supabase
-      .from("weighing_records")
-      .select("*")
-      .is("tonase_kosong", null)
-      .order("created_at", { ascending: false });
-    if (data) setRecords(data as WeighingRecord[]);
+  const addRecord = useCallback((record: WeighingRecord) => {
+    setRecords((prev) => [record, ...prev]);
   }, []);
 
-  useEffect(() => {
-    fetchRecords();
-  }, [fetchRecords]);
+  const updateRecord = useCallback((updated: WeighingRecord) => {
+    setRecords((prev) =>
+      prev.map((r) => (r.id === updated.id ? updated : r))
+    );
+    setSelectedRecord(updated);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background flex flex-col-reverse md:flex-row">
       <div className="flex-1 flex items-center justify-center p-4">
         <WeighingForm
-          onRecordAdded={fetchRecords}
           selectedRecord={selectedRecord}
+          onRecordAdded={addRecord}
+          onRecordUpdated={updateRecord}
           onClearSelection={() => setSelectedRecord(null)}
         />
       </div>
       <div className="w-full md:w-[420px] border-b md:border-b-0 md:border-l border-border bg-card flex flex-col max-h-[50vh] md:max-h-screen md:h-screen overflow-hidden">
         <RecordList
-          records={records}
+          records={records.filter((r) => r.tonase_kosong === null)}
           selectedRecord={selectedRecord}
           onSelectRecord={setSelectedRecord}
         />

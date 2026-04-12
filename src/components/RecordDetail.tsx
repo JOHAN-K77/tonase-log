@@ -1,16 +1,5 @@
 import { X, ArrowLeft } from "lucide-react";
-
-interface WeighingRecord {
-  id: string;
-  tonase_awal: number;
-  jenis: string;
-  supplier: string;
-  waktu: string;
-  tanggal: string;
-  tonase_kosong: number | null;
-  netto: number | null;
-  printed: boolean;
-}
+import type { WeighingRecord } from "@/pages/Index";
 
 interface RecordDetailProps {
   record: WeighingRecord;
@@ -31,7 +20,7 @@ const RecordDetail = ({ record, onClose }: RecordDetailProps) => {
       <div className="bg-primary text-primary-foreground px-6 py-4">
         <h2 className="text-3xl font-bold">Pencatatan</h2>
       </div>
-      <div className="flex-1 p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto min-h-0 p-6 space-y-4">
         {/* Desktop: X button, Mobile: back arrow */}
         <div className="flex justify-between items-start">
           <div className="space-y-4 flex-1">
@@ -54,6 +43,7 @@ const RecordDetail = ({ record, onClose }: RecordDetailProps) => {
                   <span className="text-muted-foreground">Timbang Kosong:</span>
                   <span className="text-3xl font-bold">{record.tonase_kosong} kg</span>
                 </div>
+                <hr className="border-foreground/30" />
                 <div className="flex items-baseline gap-2">
                   <span className="text-muted-foreground">Netto:</span>
                   <span className="text-3xl font-bold">{record.netto} kg</span>
