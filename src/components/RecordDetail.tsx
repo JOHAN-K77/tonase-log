@@ -29,9 +29,11 @@ const RecordDetail = ({ record, onClose }: RecordDetailProps) => {
               <span className="text-2xl font-bold">{record.waktu}</span>
               <span className="text-muted-foreground">({formatDate(record.tanggal)})</span>
             </div>
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-muted-foreground">Supplier:</span>
-              <span className="text-xl font-semibold">{record.supplier} ({record.jenis})</span>
+              <span className="text-xl font-semibold">
+                {record.supplier}{record.nopol ? ` (${record.nopol})` : ""} - {record.jenis}
+              </span>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-muted-foreground">Timbang Penuh:</span>
