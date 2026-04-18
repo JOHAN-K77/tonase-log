@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import type { WeighingRecord } from "@/pages/Index";
 import jsPDF from "jspdf";
+import logoBw from "@/assets/logo-bw.png";
 
 interface WeighingFormProps {
   selectedRecord: WeighingRecord | null;
@@ -15,68 +16,162 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
   const [tonase, setTonase] = useState("");
   const [jenis, setJenis] = useState("Kardus");
   const [supplier, setSupplier] = useState("");
+  const [nopol, setNopol] = useState("");
 
-  const now = new Date();
-  const waktu = now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false });
-  const tanggal = now.toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" });
-
-  // Sync supplier/jenis when a record is selected
+  // Sync supplier/jenis/nopol when a record is selected
   useEffect(() => {
     if (selectedRecord) {
       setSupplier(selectedRecord.supplier);
       setJenis(selectedRecord.jenis);
+      setNopol(selectedRecord.nopol ?? "");
     }
   }, [selectedRecord]);
+
+  const formatDate = (tanggal: string) => {
+    const d = new Date(tanggal);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   const handleDownload = () => {
     if (!selectedRecord || !selectedRecord.printed) return;
 
-    const formatDate = (tanggal: string) => {
-      const d = new Date(tanggal);
-      const day = String(d.getDate()).padStart(2, "0");
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const year = d.getFullYear();
-      return `${day}/${month}/${year}`;
+    const widthMm = 55;
+    // Estimate height generously; we'll recreate with actual height after content.
+    const tempDoc = new jsPDF({ unit: "mm", format: [widthMm, 200] });
+
+    // Layout constants (mm)
+    const lm = 3;
+    const rm = widthMm - 3;
+    const centerX = widthMm / 2;
+    const logoSize = 18;
+
+    let y = 4;
+
+    // Logo
+    tempDoc.addImage(logoBw, "PNG", centerX - logoSize / 2, y, logoSize, logoSize);
+    y += logoSize + 3;
+
+    // Title
+    tempDoc.setFont("helvetica", "bold");
+    tempDoc.setFontSize(10);
+    tempDoc.text("NOTA TIMBANG", centerX, y, { align: "center" });
+    y += 5;
+
+    // Date - time
+    tempDoc.setFont("helvetica", "normal");
+    tempDoc.setFontSize(7);
+    tempDoc.text(
+      `${formatDate(selectedRecord.tanggal)} - ${selectedRecord.waktu} WITA`,
+      centerX,
+      y,
+      { align: "center" }
+    );
+    y += 5;
+
+    // Divider
+    tempDoc.setLineWidth(0.2);
+    tempDoc.line(lm, y, rm, y);
+    y += 4;
+
+    // Field rows: label : value
+    const labelX = lm;
+    const valueX = lm + 22;
+    const fieldGap = 4;
+    tempDoc.setFontSize(8);
+
+    const drawRow = (label: string, value: string, bold = false) => {
+      tempDoc.setFont("helvetica", "normal");
+      tempDoc.text(label, labelX, y);
+      tempDoc.setFont("helvetica", bold ? "bold" : "normal");
+      tempDoc.text(`: ${value}`, valueX, y);
+      y += fieldGap;
     };
 
-    const widthMm = 50;
-    const heightMm = 80;
-    const doc = new jsPDF({ unit: "mm", format: [widthMm, heightMm] });
+    drawRow("No. Nota", selectedRecord.idnota ?? "");
+    drawRow("No. Polisi", selectedRecord.nopol ?? "-");
+    drawRow("Supplier", selectedRecord.supplier);
+    drawRow("Jenis Barang", selectedRecord.jenis.toUpperCase());
+    y += 1;
+    tempDoc.line(lm, y, rm, y);
+    y += 4;
 
-    const lm = 3; // left margin
-    let y = 5;
+    drawRow("Berat Isi", `${selectedRecord.tonase_awal} kg`);
+    drawRow("Berat Kosong", `${selectedRecord.tonase_kosong} kg`);
+    drawRow("Netto", `${selectedRecord.netto} kg`, true);
 
-    doc.setFontSize(6);
+    y += 4;
+    tempDoc.line(lm, y, rm, y);
+    y += 6;
+
+    // Signature columns
+    tempDoc.setFont("helvetica", "normal");
+    tempDoc.setFontSize(7);
+    const colLeftX = widthMm * 0.28;
+    const colRightX = widthMm * 0.72;
+    tempDoc.text("Tenaga Bongkar", colLeftX, y, { align: "center" });
+    tempDoc.text("Penimbang", colRightX, y, { align: "center" });
+    y += 12;
+    tempDoc.text("(            )", colLeftX, y, { align: "center" });
+    tempDoc.text("(            )", colRightX, y, { align: "center" });
+    y += 6;
+
+    // Bottom padding ~40px ≈ 14mm at 72dpi conversion (40px / 96 * 25.4 ≈ 10.6mm). Use ~14mm for safety.
+    const finalHeight = y + 10;
+
+    // Re-create with exact height
+    const doc = new jsPDF({ unit: "mm", format: [widthMm, finalHeight] });
+    let y2 = 4;
+    doc.addImage(logoBw, "PNG", centerX - logoSize / 2, y2, logoSize, logoSize);
+    y2 += logoSize + 3;
     doc.setFont("helvetica", "bold");
-    doc.text("PT. Anugerah Berkat Kertas", widthMm / 2, y, { align: "center" });
-    y += 4;
-
-    doc.setFontSize(5);
+    doc.setFontSize(10);
+    doc.text("NOTA TIMBANG", centerX, y2, { align: "center" });
+    y2 += 5;
     doc.setFont("helvetica", "normal");
-    doc.text(formatDate(selectedRecord.tanggal), widthMm / 2, y, { align: "center" });
-    y += 5;
+    doc.setFontSize(7);
+    doc.text(
+      `${formatDate(selectedRecord.tanggal)} - ${selectedRecord.waktu} WITA`,
+      centerX,
+      y2,
+      { align: "center" }
+    );
+    y2 += 5;
+    doc.setLineWidth(0.2);
+    doc.line(lm, y2, rm, y2);
+    y2 += 4;
+    doc.setFontSize(8);
+    const drawRow2 = (label: string, value: string, bold = false) => {
+      doc.setFont("helvetica", "normal");
+      doc.text(label, labelX, y2);
+      doc.setFont("helvetica", bold ? "bold" : "normal");
+      doc.text(`: ${value}`, valueX, y2);
+      y2 += fieldGap;
+    };
+    drawRow2("No. Nota", selectedRecord.idnota ?? "");
+    drawRow2("No. Polisi", selectedRecord.nopol ?? "-");
+    drawRow2("Supplier", selectedRecord.supplier);
+    drawRow2("Jenis Barang", selectedRecord.jenis.toUpperCase());
+    y2 += 1;
+    doc.line(lm, y2, rm, y2);
+    y2 += 4;
+    drawRow2("Berat Isi", `${selectedRecord.tonase_awal} kg`);
+    drawRow2("Berat Kosong", `${selectedRecord.tonase_kosong} kg`);
+    drawRow2("Netto", `${selectedRecord.netto} kg`, true);
+    y2 += 4;
+    doc.line(lm, y2, rm, y2);
+    y2 += 6;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.text("Tenaga Bongkar", colLeftX, y2, { align: "center" });
+    doc.text("Penimbang", colRightX, y2, { align: "center" });
+    y2 += 12;
+    doc.text("(            )", colLeftX, y2, { align: "center" });
+    doc.text("(            )", colRightX, y2, { align: "center" });
 
-    doc.text(`Waktu timbang - ${selectedRecord.waktu} WITA`, widthMm / 2, y, { align: "center" });
-    y += 5;
-
-    doc.text(`Supplier: ${selectedRecord.supplier}`, lm, y);
-    y += 4;
-
-    doc.text(`Jenis: ${selectedRecord.jenis.toUpperCase()}`, lm, y);
-    y += 4;
-
-    doc.text(`Timbang penuh:  ${selectedRecord.tonase_awal} kg`, lm, y);
-    y += 3.5;
-    doc.text(`Timbang kosong: ${selectedRecord.tonase_kosong} kg`, lm, y);
-    y += 3.5;
-    doc.text(`Netto:          ${selectedRecord.netto} kg`, lm, y);
-    y += 7;
-
-    doc.text("Penimbang", widthMm / 2, y, { align: "center" });
-    y += 8;
-    doc.text("(            )", widthMm / 2, y, { align: "center" });
-
-    doc.save(`timbang_${selectedRecord.supplier}_${selectedRecord.waktu.replace(":", "")}.pdf`);
+    doc.save(`nota_${selectedRecord.supplier}_${selectedRecord.waktu.replace(":", "")}.pdf`);
   };
 
   const handleSubmit = () => {
@@ -103,7 +198,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
 
     if (selectedRecord) {
       // Second weigh
-      const tonaseKosong = parseInt(tonase);
+      const tonaseKosong = tonaseValue;
       const netto = selectedRecord.tonase_awal - tonaseKosong;
       const updated: WeighingRecord = {
         ...selectedRecord,
@@ -127,7 +222,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
 
       const newRecord: WeighingRecord = {
         id: crypto.randomUUID(),
-        tonase_awal: parseInt(tonase),
+        tonase_awal: tonaseValue,
         jenis,
         supplier,
         waktu: timeStr,
@@ -135,11 +230,14 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
         tonase_kosong: null,
         netto: null,
         printed: false,
+        nopol: nopol || null,
+        idnota: null,
       };
 
       onRecordAdded(newRecord);
       setTonase("");
       setSupplier("");
+      setNopol("");
       toast.success("Data berhasil disimpan!");
     }
   };
@@ -150,9 +248,18 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
     ? "bg-[#0070C0]"
     : "bg-[#0070C0] md:bg-accent md:text-accent-foreground";
 
+  // Display values (read-only when a record is selected)
+  const jenisValue = selectedRecord ? selectedRecord.jenis : jenis;
+  const supplierValue = selectedRecord ? selectedRecord.supplier : supplier;
+  const nopolValue = selectedRecord ? (selectedRecord.nopol ?? "") : nopol;
+  const tonaseDisplay = isPrinted
+    ? (selectedRecord?.tonase_kosong?.toString() ?? "")
+    : tonase;
+
   return (
     <div className="flex flex-col gap-4 md:gap-6 p-4 md:p-6 w-full max-w-lg">
       <div className="grid grid-cols-2 gap-x-4 md:gap-x-8 gap-y-3 md:gap-y-4">
+        {/* Row 1: Tonase | Jenis */}
         <div>
           <Label className="text-sm text-muted-foreground mb-1">
             {selectedRecord ? "Tonase Kosong" : "Tonase"}
@@ -160,7 +267,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
           <Input
             type="number"
             step="10"
-            value={isPrinted ? (selectedRecord?.tonase_kosong?.toString() ?? "") : tonase}
+            value={tonaseDisplay}
             onChange={(e) => setTonase(e.target.value)}
             placeholder="0"
             className="border-foreground/30"
@@ -168,76 +275,53 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
           />
         </div>
         <div>
-          <Label className="text-sm text-muted-foreground mb-1">Waktu</Label>
-          <Input value={waktu} readOnly className="border-foreground/30 bg-muted/50" />
+          <Label className="text-sm text-muted-foreground mb-1">Jenis</Label>
+          {selectedRecord ? (
+            <Input value={jenisValue} readOnly className="border-foreground/30 bg-muted/50" />
+          ) : (
+            <select
+              value={jenis}
+              onChange={(e) => setJenis(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm"
+            >
+              <option value="Kardus">Kardus</option>
+              <option value="Kertas">Kertas</option>
+              <option value="Buram">Buram</option>
+              <option value="Duplex">Duplex</option>
+              <option value="Non kertas">Non kertas</option>
+            </select>
+          )}
         </div>
 
-        {!selectedRecord && (
-          <>
-            <div>
-              <Label className="text-sm text-muted-foreground mb-1">Jenis</Label>
-              <select
-                value={jenis}
-                onChange={(e) => setJenis(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm"
-              >
-                <option value="Kardus">Kardus</option>
-                <option value="Kertas">Kertas</option>
-                <option value="Buram">Buram</option>
-                <option value="Duplex">Duplex</option>
-                <option value="Non kertas">Non kertas</option>
-              </select>
-            </div>
-            <div>
-              <Label className="text-sm text-muted-foreground mb-1">Tanggal</Label>
-              <Input value={tanggal} readOnly className="border-foreground/30 bg-muted/50" />
-            </div>
-            <div className="col-span-1">
-              <Label className="text-sm text-muted-foreground mb-1">Supplier</Label>
-              <Input
-                value={supplier}
-                onChange={(e) => setSupplier(e.target.value)}
-                placeholder="Nama supplier"
-                className="border-foreground/30"
-              />
-            </div>
-          </>
-        )}
-
-        {selectedRecord && !isPrinted && (
-          <>
-            <div>
-              <Label className="text-sm text-muted-foreground mb-1">Jenis</Label>
-              <Input value={selectedRecord.jenis} readOnly className="border-foreground/30 bg-muted/50" />
-            </div>
-            <div>
-              <Label className="text-sm text-muted-foreground mb-1">Tanggal</Label>
-              <Input value={tanggal} readOnly className="border-foreground/30 bg-muted/50" />
-            </div>
-            <div className="col-span-1">
-              <Label className="text-sm text-muted-foreground mb-1">Supplier</Label>
-              <Input value={selectedRecord.supplier} readOnly className="border-foreground/30 bg-muted/50" />
-            </div>
-          </>
-        )}
-
-
-        {isPrinted && (
-          <>
-            <div>
-              <Label className="text-sm text-muted-foreground mb-1">Jenis</Label>
-              <Input value={selectedRecord?.jenis ?? ""} readOnly className="border-foreground/30 bg-muted/50" />
-            </div>
-            <div>
-              <Label className="text-sm text-muted-foreground mb-1">Tanggal</Label>
-              <Input value={tanggal} readOnly className="border-foreground/30 bg-muted/50" />
-            </div>
-            <div className="col-span-1">
-              <Label className="text-sm text-muted-foreground mb-1">Supplier</Label>
-              <Input value={selectedRecord?.supplier ?? ""} readOnly className="border-foreground/30 bg-muted/50" />
-            </div>
-          </>
-        )}
+        {/* Row 2: Supplier | No. Polisi */}
+        <div>
+          <Label className="text-sm text-muted-foreground mb-1">Supplier</Label>
+          <Input
+            value={supplierValue}
+            onChange={(e) => setSupplier(e.target.value)}
+            placeholder="Nama supplier"
+            className={
+              selectedRecord
+                ? "border-foreground/30 bg-muted/50"
+                : "border-foreground/30"
+            }
+            readOnly={!!selectedRecord}
+          />
+        </div>
+        <div>
+          <Label className="text-sm text-muted-foreground mb-1">No. Polisi</Label>
+          <Input
+            value={nopolValue}
+            onChange={(e) => setNopol(e.target.value)}
+            placeholder="DK 1234 BC"
+            className={
+              selectedRecord
+                ? "border-foreground/30 bg-muted/50"
+                : "border-foreground/30"
+            }
+            readOnly={!!selectedRecord}
+          />
+        </div>
       </div>
 
       <div className="flex justify-center mt-2 md:mt-4">
