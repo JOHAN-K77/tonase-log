@@ -12,6 +12,8 @@ export interface WeighingRecord {
   tonase_kosong: number | null;
   netto: number | null;
   printed: boolean;
+  nopol: string | null;
+  idnota: string | null;
 }
 
 const Index = () => {
