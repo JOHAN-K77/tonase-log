@@ -56,12 +56,12 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
     const infoX = lm + headerLogoSize + 2;
     tempDoc.setFont("helvetica", "bold");
     tempDoc.setFontSize(7);
-    tempDoc.text("UD. SUMBER REJEKI", infoX, y + 3);
+    tempDoc.text("PT. Anugerah Berkat Kertas", infoX, y + 3);
     tempDoc.setFont("helvetica", "normal");
     tempDoc.setFontSize(5.5);
-    tempDoc.text("Jl. Raya Pemogan No. 88", infoX, y + 6);
-    tempDoc.text("Denpasar Selatan, Bali", infoX, y + 8.5);
-    tempDoc.text("Telp: 0812-3456-7890", infoX, y + 11);
+    tempDoc.text("Denpasar - Bali", infoX, y + 6);
+    tempDoc.text("Telp. 081932303445 /", infoX, y + 8.5);
+    tempDoc.text("081803081810", infoX, y + 11);
     y += headerLogoSize + 2;
 
     // Title
@@ -139,12 +139,12 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
     const infoX2 = lm + headerLogoSize2 + 2;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
-    doc.text("UD. SUMBER REJEKI", infoX2, y2 + 3);
+    doc.text("PT. Anugerah Berkat Kertas", infoX2, y2 + 3);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(5.5);
-    doc.text("Jl. Raya Pemogan No. 88", infoX2, y2 + 6);
-    doc.text("Denpasar Selatan, Bali", infoX2, y2 + 8.5);
-    doc.text("Telp: 0812-3456-7890", infoX2, y2 + 11);
+    doc.text("Denpasar - Bali", infoX2, y2 + 6);
+    doc.text("Telp. 081932303445 /", infoX2, y2 + 8.5);
+    doc.text("081803081810", infoX2, y2 + 11);
     y2 += headerLogoSize2 + 2;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
