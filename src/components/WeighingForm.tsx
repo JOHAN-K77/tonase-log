@@ -50,9 +50,19 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
 
     let y = 4;
 
-    // Logo
-    tempDoc.addImage(logoBw, "PNG", centerX - logoSize / 2, y, logoSize, logoSize);
-    y += logoSize + 3;
+    // Header: Logo on left, company info on right
+    const headerLogoSize = 14;
+    tempDoc.addImage(logoBw, "PNG", lm, y, headerLogoSize, headerLogoSize);
+    const infoX = lm + headerLogoSize + 2;
+    tempDoc.setFont("helvetica", "bold");
+    tempDoc.setFontSize(7);
+    tempDoc.text("UD. SUMBER REJEKI", infoX, y + 3);
+    tempDoc.setFont("helvetica", "normal");
+    tempDoc.setFontSize(5.5);
+    tempDoc.text("Jl. Raya Pemogan No. 88", infoX, y + 6);
+    tempDoc.text("Denpasar Selatan, Bali", infoX, y + 8.5);
+    tempDoc.text("Telp: 0812-3456-7890", infoX, y + 11);
+    y += headerLogoSize + 2;
 
     // Title
     tempDoc.setFont("helvetica", "bold");
@@ -124,8 +134,18 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
     // Re-create with exact height
     const doc = new jsPDF({ unit: "mm", format: [widthMm, finalHeight] });
     let y2 = 4;
-    doc.addImage(logoBw, "PNG", centerX - logoSize / 2, y2, logoSize, logoSize);
-    y2 += logoSize + 3;
+    const headerLogoSize2 = 14;
+    doc.addImage(logoBw, "PNG", lm, y2, headerLogoSize2, headerLogoSize2);
+    const infoX2 = lm + headerLogoSize2 + 2;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    doc.text("UD. SUMBER REJEKI", infoX2, y2 + 3);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(5.5);
+    doc.text("Jl. Raya Pemogan No. 88", infoX2, y2 + 6);
+    doc.text("Denpasar Selatan, Bali", infoX2, y2 + 8.5);
+    doc.text("Telp: 0812-3456-7890", infoX2, y2 + 11);
+    y2 += headerLogoSize2 + 2;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.text("NOTA TIMBANG", centerX, y2, { align: "center" });
