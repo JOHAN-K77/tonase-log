@@ -282,19 +282,17 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
 
   return (
     <div className="flex flex-col gap-4 md:gap-6 p-4 md:p-6 w-full max-w-lg">
-      {/* No. Nota — only when a record is selected (detail view) */}
-      {selectedRecord && (
-        <div>
-          <Label className="text-sm text-muted-foreground mb-1">No. Nota</Label>
-          <Input
-            value={idnota}
-            onChange={(e) => setIdnota(e.target.value)}
-            placeholder="(opsional)"
-            className="border-foreground/30"
-            readOnly={isPrinted}
-          />
-        </div>
-      )}
+      {/* No. Nota — always visible */}
+      <div>
+        <Label className="text-sm text-muted-foreground mb-1">No. Nota</Label>
+        <Input
+          value={idnota}
+          onChange={(e) => setIdnota(e.target.value)}
+          placeholder="(opsional)"
+          className="border-foreground/30"
+          readOnly={isPrinted}
+        />
+      </div>
 
       <div className="grid grid-cols-2 gap-x-4 md:gap-x-8 gap-y-3 md:gap-y-4">
         {/* Row 1: Tonase | Jenis */}
