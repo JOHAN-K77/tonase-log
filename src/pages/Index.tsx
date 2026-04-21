@@ -14,6 +14,8 @@ export interface WeighingRecord {
   printed: boolean;
   nopol: string | null;
   idnota: string | null;
+  penimbang: string | null;
+  pembongkar: string | null;
 }
 
 const Index = () => {

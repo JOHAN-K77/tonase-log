@@ -35,6 +35,24 @@ const RecordDetail = ({ record, onClose }: RecordDetailProps) => {
                 {record.supplier}{record.nopol ? ` (${record.nopol})` : ""} - {record.jenis}
               </span>
             </div>
+            {record.idnota && (
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="text-muted-foreground">No. Nota:</span>
+                <span className="text-base font-medium">{record.idnota}</span>
+              </div>
+            )}
+            {record.penimbang && (
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="text-muted-foreground">Penimbang:</span>
+                <span className="text-base font-medium">{record.penimbang}</span>
+              </div>
+            )}
+            {record.pembongkar && (
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="text-muted-foreground">Kary. Bongkar:</span>
+                <span className="text-base font-medium">{record.pembongkar}</span>
+              </div>
+            )}
             <div className="flex items-baseline gap-2">
               <span className="text-muted-foreground">Timbang Penuh:</span>
               <span className="text-3xl font-bold">{record.tonase_awal} kg</span>
