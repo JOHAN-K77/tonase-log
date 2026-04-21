@@ -257,7 +257,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
         netto: null,
         printed: false,
         nopol: nopol || null,
-        idnota: null,
+        idnota: idnota || null,
         penimbang: null,
         pembongkar: null,
       };
@@ -266,6 +266,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
       setTonase("");
       setSupplier("");
       setNopol("");
+      setIdnota("");
       toast.success("Data berhasil disimpan!");
     }
   };
