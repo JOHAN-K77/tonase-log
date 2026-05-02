@@ -1,5 +1,5 @@
 import RecordDetail from "./RecordDetail";
-import type { WeighingRecord } from "@/pages/Index";
+import type { WeighingRecord } from "@/type/models";
 
 interface RecordListProps {
   records: WeighingRecord[];

@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import type { WeighingRecord } from "@/pages/Index";
+import type { WeighingRecord, Supplier, Jenis, Karyawan, Lokasi } from "@/type/models";
 import jsPDF from "jspdf";
 import logoBw from "@/assets/logo-bw.png";
+import api from "@/api/api";
 
 interface WeighingFormProps {
   selectedRecord: WeighingRecord | null;
@@ -194,7 +195,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
     doc.save(`nota_${selectedRecord.supplier}_${selectedRecord.waktu.replace(":", "")}.pdf`);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedRecord?.printed) {
       handleDownload();
       return;
@@ -233,8 +234,15 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
         printed: true,
       };
       onRecordUpdated(updated);
-      setTonase("");
-      toast.success("Timbang kosong berhasil disimpan!");
+
+      try {
+        setTonase("");
+        toast.success("Timbang kosong berhasil disimpan!");
+      
+      } catch (error) {
+        toast.error("Gagal menyimpan data ke server!");
+        return;
+      }
     } else {
       // First weigh
       if (!supplier) {
@@ -263,11 +271,18 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
       };
 
       onRecordAdded(newRecord);
-      setTonase("");
-      setSupplier("");
-      setNopol("");
-      setIdnota("");
-      toast.success("Data berhasil disimpan!");
+
+      try {
+
+        setTonase("");
+        setSupplier("");
+        setNopol("");
+        setIdnota("");
+        toast.success("Data berhasil disimpan!");
+      } catch (error) {
+        toast.error("Gagal menyimpan data ke server!");
+        return;
+      }
     }
   };
 

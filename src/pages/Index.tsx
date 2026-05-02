@@ -1,22 +1,8 @@
 import { useState, useCallback } from "react";
 import WeighingForm from "@/components/WeighingForm";
 import RecordList from "@/components/RecordList";
-
-export interface WeighingRecord {
-  id: string;
-  tonase_awal: number;
-  jenis: string;
-  supplier: string;
-  waktu: string;
-  tanggal: string;
-  tonase_kosong: number | null;
-  netto: number | null;
-  printed: boolean;
-  nopol: string | null;
-  idnota: string | null;
-  penimbang: string | null;
-  pembongkar: string | null;
-}
+import { WeighingRecord } from "@/type/models";
+import api from "@/api/api";
 
 const Index = () => {
   const [records, setRecords] = useState<WeighingRecord[]>([]);

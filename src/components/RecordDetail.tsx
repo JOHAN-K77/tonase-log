@@ -1,5 +1,5 @@
 import { X, ArrowLeft } from "lucide-react";
-import type { WeighingRecord } from "@/pages/Index";
+import type { WeighingRecord, Supplier, Jenis, Karyawan, Lokasi } from "@/type/models";
 
 interface RecordDetailProps {
   record: WeighingRecord;
