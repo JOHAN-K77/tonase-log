@@ -32,7 +32,7 @@ const RecordDetail = ({ record, onClose }: RecordDetailProps) => {
             <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-muted-foreground">Supplier:</span>
               <span className="text-xl font-semibold">
-                {record.supplier}{record.nopol ? ` (${record.nopol})` : ""} - {record.jenis}
+                {record.nama_suppl}{record.nopol ? ` (${record.nopol})` : ""} - {record.jenis.name}
               </span>
             </div>
             {record.idnota && (
@@ -44,13 +44,13 @@ const RecordDetail = ({ record, onClose }: RecordDetailProps) => {
             {record.penimbang && (
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-muted-foreground">Penimbang:</span>
-                <span className="text-base font-medium">{record.penimbang}</span>
+                <span className="text-base font-medium">{record.penimbang.name}</span>
               </div>
             )}
             {record.pembongkar && (
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-muted-foreground">Kary. Bongkar:</span>
-                <span className="text-base font-medium">{record.pembongkar}</span>
+                <span className="text-base font-medium">{record.pembongkar.name}</span>
               </div>
             )}
             <div className="flex items-baseline gap-2">

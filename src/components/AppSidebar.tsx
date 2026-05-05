@@ -14,6 +14,10 @@ import {
 const items = [
   { title: "Timbang", url: "/", icon: Scale },
   { title: "Riwayat", url: "/history", icon: History },
+  { title: "Karyawan", url: "/karyawan", icon: History },
+  { title: "Jenis", url: "/jenis", icon: History },
+  { title: "Lokasi", url: "/lokasi", icon: History },
+  { title: "Supplier", url: "/supplier", icon: History },
 ];
 
 export function AppSidebar() {

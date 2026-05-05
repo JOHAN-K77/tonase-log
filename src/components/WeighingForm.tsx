@@ -3,196 +3,61 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import type { WeighingRecord, Supplier, Jenis, Karyawan, Lokasi } from "@/type/models";
-import jsPDF from "jspdf";
-import logoBw from "@/assets/logo-bw.png";
 import api from "@/api/api";
+import CetakStruk from "@/lib/CetakStruk";
 
 interface WeighingFormProps {
   selectedRecord: WeighingRecord | null;
   onRecordAdded: (record: WeighingRecord) => void;
   onRecordUpdated: (record: WeighingRecord) => void;
+  defaultOptions: {
+    jenis: Jenis[];
+    supplier: Supplier[];
+    karyawan: Karyawan[];
+    lokasi: Lokasi[];
+  };
 }
 
-const JENIS_OPTIONS = [
-  "Kardus", "HVS", "Modul", "Buram", "Duplek",
-  "Kotak susu", "Plongsong", "Kerak telur", "Majalah", "Arsip",
-];
+export const formatDate = (tanggal: string) => {
+  const d = new Date(tanggal);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
 
-const PENIMBANG_OPTIONS = [
-  "Nova", "Misad", "David", "Marsel", "Eben", "Marlin",
-  "Danil", "Catur", "Suroto", "Michael", "Grace",
-];
-
-const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: WeighingFormProps) => {
+const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultOptions }: WeighingFormProps) => {
   const [tonase, setTonase] = useState("");
-  const [jenis, setJenis] = useState("Kardus");
+  const [jenis, setJenis] = useState<Jenis>(null);
   const [supplier, setSupplier] = useState("");
   const [nopol, setNopol] = useState("");
   const [idnota, setIdnota] = useState("");
-  const [penimbang, setPenimbang] = useState("Nova");
-  const [pembongkar, setPembongkar] = useState("");
+  const [penimbang, setPenimbang] = useState<Karyawan>(null);
+  const [pembongkar, setPembongkar] = useState<Karyawan>(null);
 
   // Sync fields when a record is selected
   useEffect(() => {
     if (selectedRecord) {
-      setSupplier(selectedRecord.supplier);
+      setSupplier(selectedRecord.nama_suppl);
       setJenis(selectedRecord.jenis);
       setNopol(selectedRecord.nopol ?? "");
       setIdnota(selectedRecord.idnota ?? "");
-      setPenimbang(selectedRecord.penimbang ?? "Nova");
-      setPembongkar(selectedRecord.pembongkar ?? "");
+      setPenimbang(selectedRecord.penimbang ?? null);
+      setPembongkar(selectedRecord.pembongkar ?? null);
     }
   }, [selectedRecord]);
 
-  const formatDate = (tanggal: string) => {
-    const d = new Date(tanggal);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
+  useEffect(() => {
+    if (!jenis && defaultOptions.jenis.length > 0) {
+      setJenis(defaultOptions.jenis[0]);
+    }
+  }, [defaultOptions.jenis]);
 
   const handleDownload = () => {
     if (!selectedRecord || !selectedRecord.printed) return;
 
-    const widthMm = 55;
-    const tempDoc = new jsPDF({ unit: "mm", format: [widthMm, 200] });
-
-    // Layout constants (mm) - reduced left padding to fit phone numbers on one line
-    const lm = 1.5;
-    const rm = widthMm - 1.5;
-    const centerX = widthMm / 2;
-
-    let y = 4;
-
-    const headerLogoSize = 14;
-    tempDoc.addImage(logoBw, "PNG", lm, y, headerLogoSize, headerLogoSize);
-    const infoX = lm + headerLogoSize + 1.5;
-    tempDoc.setFont("helvetica", "bold");
-    tempDoc.setFontSize(7);
-    tempDoc.text("PT. Anugerah Berkat Kertas", infoX, y + 3);
-    tempDoc.setFont("helvetica", "normal");
-    tempDoc.setFontSize(5.5);
-    tempDoc.text("Denpasar - Bali", infoX, y + 6);
-    tempDoc.text("Telp. 081932303445 / 081803081810", infoX, y + 8.5);
-    y += headerLogoSize + 2;
-
-    tempDoc.setFont("helvetica", "bold");
-    tempDoc.setFontSize(10);
-    tempDoc.text("NOTA TIMBANG", centerX, y, { align: "center" });
-    y += 5;
-
-    tempDoc.setFont("helvetica", "normal");
-    tempDoc.setFontSize(7);
-    tempDoc.text(
-      `${formatDate(selectedRecord.tanggal)} - ${selectedRecord.waktu} WITA`,
-      centerX, y, { align: "center" }
-    );
-    y += 5;
-
-    tempDoc.setLineWidth(0.2);
-    tempDoc.line(lm, y, rm, y);
-    y += 4;
-
-    const labelX = lm;
-    const valueX = lm + 22;
-    const fieldGap = 4;
-    tempDoc.setFontSize(8);
-
-    const drawRow = (label: string, value: string, bold = false) => {
-      tempDoc.setFont("helvetica", "normal");
-      tempDoc.text(label, labelX, y);
-      tempDoc.setFont("helvetica", bold ? "bold" : "normal");
-      tempDoc.text(`: ${value}`, valueX, y);
-      y += fieldGap;
-    };
-
-    drawRow("No. Nota", selectedRecord.idnota ?? "");
-    drawRow("No. Polisi", selectedRecord.nopol ?? "-");
-    drawRow("Supplier", selectedRecord.supplier);
-    drawRow("Jenis Barang", selectedRecord.jenis.toUpperCase());
-    y += 1;
-    tempDoc.line(lm, y, rm, y);
-    y += 4;
-
-    drawRow("Berat Isi", `${selectedRecord.tonase_awal} kg`);
-    drawRow("Berat Kosong", `${selectedRecord.tonase_kosong} kg`);
-    drawRow("Netto", `${selectedRecord.netto} kg`, true);
-
-    y += 4;
-    tempDoc.line(lm, y, rm, y);
-    y += 6;
-
-    tempDoc.setFont("helvetica", "normal");
-    tempDoc.setFontSize(7);
-    const colLeftX = widthMm * 0.28;
-    const colRightX = widthMm * 0.72;
-    tempDoc.text("Tenaga Bongkar", colLeftX, y, { align: "center" });
-    tempDoc.text("Penimbang", colRightX, y, { align: "center" });
-    y += 12;
-    tempDoc.text(`( ${selectedRecord.pembongkar ?? ""} )`, colLeftX, y, { align: "center" });
-    tempDoc.text(`( ${selectedRecord.penimbang ?? ""} )`, colRightX, y, { align: "center" });
-    y += 6;
-
-    const finalHeight = y + 10;
-
-    // Re-create with exact height
-    const doc = new jsPDF({ unit: "mm", format: [widthMm, finalHeight] });
-    let y2 = 4;
-    doc.addImage(logoBw, "PNG", lm, y2, headerLogoSize, headerLogoSize);
-    const infoX2 = lm + headerLogoSize + 1.5;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
-    doc.text("PT. Anugerah Berkat Kertas", infoX2, y2 + 3);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(5.5);
-    doc.text("Denpasar - Bali", infoX2, y2 + 6);
-    doc.text("Telp. 081932303445 / 081803081810", infoX2, y2 + 8.5);
-    y2 += headerLogoSize + 2;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("NOTA TIMBANG", centerX, y2, { align: "center" });
-    y2 += 5;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.text(
-      `${formatDate(selectedRecord.tanggal)} - ${selectedRecord.waktu} WITA`,
-      centerX, y2, { align: "center" }
-    );
-    y2 += 5;
-    doc.setLineWidth(0.2);
-    doc.line(lm, y2, rm, y2);
-    y2 += 4;
-    doc.setFontSize(8);
-    const drawRow2 = (label: string, value: string, bold = false) => {
-      doc.setFont("helvetica", "normal");
-      doc.text(label, labelX, y2);
-      doc.setFont("helvetica", bold ? "bold" : "normal");
-      doc.text(`: ${value}`, valueX, y2);
-      y2 += fieldGap;
-    };
-    drawRow2("No. Nota", selectedRecord.idnota ?? "");
-    drawRow2("No. Polisi", selectedRecord.nopol ?? "-");
-    drawRow2("Supplier", selectedRecord.supplier);
-    drawRow2("Jenis Barang", selectedRecord.jenis.toUpperCase());
-    y2 += 1;
-    doc.line(lm, y2, rm, y2);
-    y2 += 4;
-    drawRow2("Berat Isi", `${selectedRecord.tonase_awal} kg`);
-    drawRow2("Berat Kosong", `${selectedRecord.tonase_kosong} kg`);
-    drawRow2("Netto", `${selectedRecord.netto} kg`, true);
-    y2 += 4;
-    doc.line(lm, y2, rm, y2);
-    y2 += 6;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.text("Tenaga Bongkar", colLeftX, y2, { align: "center" });
-    doc.text("Penimbang", colRightX, y2, { align: "center" });
-    y2 += 12;
-    doc.text(`( ${selectedRecord.pembongkar ?? ""} )`, colLeftX, y2, { align: "center" });
-    doc.text(`( ${selectedRecord.penimbang ?? ""} )`, colRightX, y2, { align: "center" });
-
-    doc.save(`nota_${selectedRecord.supplier}_${selectedRecord.waktu.replace(":", "")}.pdf`);
+    CetakStruk(selectedRecord);
+    return;
   };
 
   const handleSubmit = async () => {
@@ -223,7 +88,6 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
       const netto = selectedRecord.tonase_awal - tonaseKosong;
       const updated: WeighingRecord = {
         ...selectedRecord,
-        supplier,
         jenis,
         nopol: nopol || null,
         idnota: idnota || null,
@@ -236,6 +100,17 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
       onRecordUpdated(updated);
 
       try {
+        await api.post("/api/update-log", {
+          id: updated.id,
+          no_nota: updated.idnota || null,
+          tonase_kosong: updated.tonase_kosong,
+          netto: updated.netto,
+          jenis_id: updated.jenis?.id,
+          penimbang_id: updated.penimbang?.id || null,
+          pembongkar_id: updated.pembongkar?.id || null,
+          printed: "1",
+        }).then((res) => {
+        });
         setTonase("");
         toast.success("Timbang kosong berhasil disimpan!");
       
@@ -257,8 +132,8 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
       const newRecord: WeighingRecord = {
         id: crypto.randomUUID(),
         tonase_awal: tonaseValue,
+        supplier: null,
         jenis,
-        supplier,
         waktu: timeStr,
         tanggal: dateStr,
         tonase_kosong: null,
@@ -268,17 +143,31 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
         idnota: idnota || null,
         penimbang: null,
         pembongkar: null,
+        nama_suppl: supplier,
+        lokasi_gudang: defaultOptions.lokasi[0],
       };
 
-      onRecordAdded(newRecord);
-
       try {
+        await api.post("/api/new-log", {
+          no_nota: newRecord.idnota || null,
+          waktu_timbang: newRecord.tanggal + " " + newRecord.waktu,
+          timbang_awal: newRecord.tonase_awal,
+          nama_supplier: newRecord.nama_suppl,
+          nopol: newRecord.nopol,
+          idjenis: newRecord.jenis?.id,
+          idlokasi: newRecord.lokasi_gudang?.id
+        }).then((res) => {
+          console.log("Response from server after adding new log:", res.data);
 
-        setTonase("");
-        setSupplier("");
-        setNopol("");
-        setIdnota("");
-        toast.success("Data berhasil disimpan!");
+          newRecord.id = res.data.id; // Update the record ID with the one generated by the server
+          onRecordAdded(newRecord);
+
+          setTonase("");
+          setSupplier("");
+          setNopol("");
+          setIdnota("");
+          toast.success("Data berhasil disimpan!");
+        });
       } catch (error) {
         toast.error("Gagal menyimpan data ke server!");
         return;
@@ -329,13 +218,22 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
         <div>
           <Label className="text-sm text-muted-foreground mb-1">Jenis</Label>
           <select
-            value={jenis}
-            onChange={(e) => setJenis(e.target.value)}
+            value={jenis?.id ?? ""}
+            onChange={(e) => {
+              if (selectedRecord && selectedRecord.jenis?.id !== e.target.value) {
+                const confirmed = window.confirm("Apakah anda yakin ingin mengubah jenis?");
+                if (confirmed) {
+                  setJenis(defaultOptions.jenis.find((j) => j.id === e.target.value));
+                }
+              } else {
+                setJenis(defaultOptions.jenis.find((j) => j.id === e.target.value));
+              }
+            }}
             disabled={isPrinted}
             className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm disabled:opacity-70"
           >
-            {JENIS_OPTIONS.map((j) => (
-              <option key={j} value={j}>{j}</option>
+            {defaultOptions.jenis.map((j) => (
+              <option key={j.id} value={j.id}>{j.name}</option>
             ))}
           </select>
         </div>
@@ -368,25 +266,29 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated }: Weighi
             <div>
               <Label className="text-sm text-muted-foreground mb-1">Penimbang</Label>
               <select
-                value={penimbang}
-                onChange={(e) => setPenimbang(e.target.value)}
+                value={penimbang?.id ?? ""}
+                onChange={(e) => setPenimbang(defaultOptions.karyawan.find((k) => k.id === e.target.value) || null)}
                 disabled={isPrinted}
                 className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm disabled:opacity-70"
               >
-                {PENIMBANG_OPTIONS.map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                {defaultOptions.karyawan.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
             </div>
             <div>
               <Label className="text-sm text-muted-foreground mb-1">Kary. Bongkar</Label>
-              <Input
-                value={pembongkar}
-                onChange={(e) => setPembongkar(e.target.value)}
-                placeholder="(opsional)"
-                className="border-foreground/30"
-                readOnly={isPrinted}
-              />
+              <select
+                value={pembongkar?.id ?? ""}
+                onChange={(e) => setPembongkar(defaultOptions.karyawan.find((k) => k.id === e.target.value) || null)}
+                disabled={isPrinted}
+                className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm disabled:opacity-70"
+              >
+                <option value={null}> (opsional)</option>
+                {defaultOptions.karyawan.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
             </div>
           </>
         )}

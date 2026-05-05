@@ -12,6 +12,13 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
     allowedHosts: ["shoptalk-showoff-sloped.ngrok-free.dev"],
+    proxy: {
+      "/api": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        // rewrite: (path) => path.replace(/^\/api/, ""), //Remove this line if switch to use "/api" prefix for server end-point
+      },
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {

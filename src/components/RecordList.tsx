@@ -47,7 +47,7 @@ const RecordList = ({ records, selectedRecord, onSelectRecord }: RecordListProps
               </span>
             </div>
             <div className="text-sm text-muted-foreground mt-1">
-              {r.supplier} ({r.jenis})
+              {r.nama_suppl} ({r.jenis.name})
             </div>
             {r.tonase_kosong !== null && (
               <div className="text-sm text-muted-foreground opacity-60">

@@ -11,6 +11,9 @@ export interface WeighingRecord {
   idnota: string | null;
   penimbang: Karyawan | null;
   pembongkar: Karyawan | null;
+  nama_suppl: string;
+  nopol: string | null;
+  lokasi_gudang: Lokasi;
 }
 
 export interface Supplier {
