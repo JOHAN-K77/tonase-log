@@ -5,6 +5,9 @@ import { toast } from "sonner";
 import type { WeighingRecord, Supplier, Jenis, Karyawan, Lokasi } from "@/type/models";
 import api from "@/api/api";
 import CetakStruk from "@/lib/CetakStruk";
+// import { useSession } from "@/context/SessionContext";
+
+// const { sessionActive } = useSession();
 
 interface WeighingFormProps {
   selectedRecord: WeighingRecord | null;
@@ -52,6 +55,12 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
       setJenis(defaultOptions.jenis[0]);
     }
   }, [defaultOptions.jenis]);
+
+  useEffect(() => {
+    if (selectedRecord && !penimbang && defaultOptions.karyawan.length > 0) {
+      setPenimbang(defaultOptions.karyawan[0]);
+    }
+  }, [selectedRecord, penimbang, defaultOptions]);
 
   const handleDownload = () => {
     if (!selectedRecord || !selectedRecord.printed) return;
@@ -110,10 +119,23 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
           pembongkar_id: updated.pembongkar?.id || null,
           printed: "1",
         }).then((res) => {
+          setTonase("");
+          setSupplier("");
+          setNopol("");
+          setIdnota("");
+          toast.success("Timbang kosong berhasil disimpan!");
+
+          const income = updated.netto * (updated.jenis?.price || 0);
+          api.post("/api/make-transaction", {
+            harga_kg: updated.jenis?.price || 0,
+            pendapatan: income,
+            log_id: updated.id
+          }).then((res) => {
+            console.log("Transaksi berhasil dibuat untuk log ID:", updated.id);
+          }).catch((err) => {
+            console.error("Gagal membuat transaksi untuk log ID:", updated.id, err);
+          });
         });
-        setTonase("");
-        toast.success("Timbang kosong berhasil disimpan!");
-      
       } catch (error) {
         toast.error("Gagal menyimpan data ke server!");
         return;
@@ -126,8 +148,10 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
       }
 
       const currentDate = new Date();
-      const timeStr = currentDate.toTimeString().slice(0, 5);
-      const dateStr = currentDate.toISOString().slice(0, 10);
+      const options = { timeZone: "Asia/Singapore", hour12: false };
+
+      const timeStr = currentDate.toLocaleTimeString("en-GB", { ...options, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      const dateStr = currentDate.toLocaleDateString("en-CA", options);
 
       const newRecord: WeighingRecord = {
         id: crypto.randomUUID(),
@@ -144,6 +168,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
         penimbang: null,
         pembongkar: null,
         nama_suppl: supplier,
+        // lokasi_gudang: defaultOptions.lokasi.find((opt) => opt.nama_lok === sessionActive.lokasi) || defaultOptions.lokasi[0],
         lokasi_gudang: defaultOptions.lokasi[0],
       };
 

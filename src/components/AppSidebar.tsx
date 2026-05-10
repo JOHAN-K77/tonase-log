@@ -10,14 +10,17 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+// import { useSession } from "@/context/SessionContext";
+
+// const { sessionActive } = useSession();
 
 const items = [
-  { title: "Timbang", url: "/", icon: Scale },
-  { title: "Riwayat", url: "/history", icon: History },
-  { title: "Karyawan", url: "/karyawan", icon: History },
-  { title: "Jenis", url: "/jenis", icon: History },
-  { title: "Lokasi", url: "/lokasi", icon: History },
-  { title: "Supplier", url: "/supplier", icon: History },
+  { title: "Timbang", url: "/", icon: Scale, confid: false },
+  { title: "Riwayat", url: "/history", icon: History, confid: false },
+  { title: "Karyawan", url: "/karyawan", icon: History, confid: true },
+  { title: "Jenis", url: "/jenis", icon: History, confid: true },
+  { title: "Lokasi", url: "/lokasi", icon: History, confid: true },
+  { title: "Supplier", url: "/supplier", icon: History, confid: true },
 ];
 
 export function AppSidebar() {
@@ -31,6 +34,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
+                // (sessionActive.role === "admin" || item.confid) &&
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
@@ -44,7 +48,7 @@ export function AppSidebar() {
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

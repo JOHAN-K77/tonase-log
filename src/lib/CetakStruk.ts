@@ -141,7 +141,7 @@ const CetakStruk = (recordToPrint: WeighingRecord) => {
         doc.text(`( ${recordToPrint.pembongkar ? recordToPrint.pembongkar.name : ""} )`, colLeftX, y2, { align: "center" });
         doc.text(`( ${recordToPrint.penimbang ? recordToPrint.penimbang.name : ""} )`, colRightX, y2, { align: "center" });
     
-        doc.save(`nota_${recordToPrint.supplier}_${recordToPrint.waktu.replace(":", "")}.pdf`);
+        doc.save(`nota_${recordToPrint.nama_suppl}_${recordToPrint.tanggal}.pdf`);
     }
 
     export default CetakStruk;

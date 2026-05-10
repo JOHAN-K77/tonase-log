@@ -5,9 +5,10 @@ interface RecordListProps {
   records: WeighingRecord[];
   selectedRecord: WeighingRecord | null;
   onSelectRecord: (record: WeighingRecord | null) => void;
+  forWeighing?: boolean;
 }
 
-const RecordList = ({ records, selectedRecord, onSelectRecord }: RecordListProps) => {
+const RecordList = ({ records, selectedRecord, onSelectRecord, forWeighing = false }: RecordListProps) => {
   const formatDate = (tanggal: string, waktu: string) => {
     const d = new Date(tanggal);
     const day = String(d.getDate()).padStart(2, "0");
@@ -17,14 +18,16 @@ const RecordList = ({ records, selectedRecord, onSelectRecord }: RecordListProps
   };
 
   if (selectedRecord) {
-    return <RecordDetail record={selectedRecord} onClose={() => onSelectRecord(null)} />;
+    return <RecordDetail record={selectedRecord} onClose={() => onSelectRecord(null)} canPrint={!forWeighing} />;
   }
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-primary text-primary-foreground px-6 py-4">
-        <h2 className="text-3xl font-bold">Pencatatan</h2>
-      </div>
+      {forWeighing && (
+        <div className="bg-primary text-primary-foreground px-6 py-4">
+          <h2 className="text-3xl font-bold">Pencatatan</h2>
+        </div>
+      )}
       <div className="flex-1 overflow-y-auto min-h-0 divide-y divide-border">
         {records.length === 0 && (
           <div className="p-6 text-center text-muted-foreground">Belum ada data</div>
@@ -47,7 +50,7 @@ const RecordList = ({ records, selectedRecord, onSelectRecord }: RecordListProps
               </span>
             </div>
             <div className="text-sm text-muted-foreground mt-1">
-              {r.nama_suppl} ({r.jenis.name})
+              {r.nama_suppl} {r.nopol && ` - ${r.nopol}`} ({r.jenis.name})
             </div>
             {r.tonase_kosong !== null && (
               <div className="text-sm text-muted-foreground opacity-60">

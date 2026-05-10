@@ -1,12 +1,15 @@
+
 import { X, ArrowLeft } from "lucide-react";
 import type { WeighingRecord, Supplier, Jenis, Karyawan, Lokasi } from "@/type/models";
+import CetakStruk from "@/lib/CetakStruk";
 
 interface RecordDetailProps {
   record: WeighingRecord;
   onClose: () => void;
+  canPrint: boolean;
 }
 
-const RecordDetail = ({ record, onClose }: RecordDetailProps) => {
+const RecordDetail = ({ record, onClose, canPrint }: RecordDetailProps) => {
   const formatDate = (tanggal: string) => {
     const d = new Date(tanggal);
     const day = String(d.getDate()).padStart(2, "0");
@@ -17,8 +20,16 @@ const RecordDetail = ({ record, onClose }: RecordDetailProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-primary text-primary-foreground px-6 py-4">
+      <div className="bg-primary text-primary-foreground px-6 py-4 flex items-center justify-between">
         <h2 className="text-3xl font-bold">Pencatatan</h2>
+        {canPrint && (
+          <button
+            onClick={() => CetakStruk(record)}
+            className="ml-4 px-4 py-2 bg-[#0070C0] text-white rounded font-semibold shadow hover:brightness-110 transition-all"
+          >
+            Download
+          </button>
+        )}
       </div>
       <div className="flex-1 overflow-y-auto min-h-0 p-6 space-y-4">
         {/* Desktop: X button, Mobile: back arrow */}

@@ -3,9 +3,11 @@ import WeighingForm from "@/components/WeighingForm";
 import RecordList from "@/components/RecordList";
 import { WeighingRecord, Jenis, Supplier, Karyawan, Lokasi } from "@/type/models";
 import api from "@/api/api";
+// import { useSession } from "@/context/SessionContext";
 
 const Index = () => {
   const [countNewLog, setCountNewLog] = useState(0);
+  const [secondCount, setSecondCount] = useState(0);
 
   const [records, setRecords] = useState<WeighingRecord[]>([]);
   const [selectedRecord, setSelectedRecord] = useState<WeighingRecord | null>(null);
@@ -14,6 +16,11 @@ const Index = () => {
   const [supplierMaster, setSupplierMaster] = useState<Supplier[]>([]);
   const [karyawanMaster, setKaryawanMaster] = useState<Karyawan[]>([]);
   const [lokasiMaster, setLokasiMaster] = useState<Lokasi[]>([]);
+
+  // const { sessionActive } = useSession();
+  // if (sessionActive === null) {
+  //   return null;
+  // }
 
   useEffect(() => {
     Promise.all([
@@ -76,7 +83,7 @@ const Index = () => {
           setKaryawanMaster(karyawanData);
           console.log("Hasil konversi dari database:", karyawanData);
 
-          api.post("/api/fetch-records").then((res) => {
+          api.post("/api/fetch-records", { printed: "0" }).then((res) => {
             console.log("Ambil semua record timbang dari database:", res.data)
             if (res.data.length > 0) {
               const log_timbang: WeighingRecord[] = res.data.map((item: any) => ({
@@ -111,6 +118,19 @@ const Index = () => {
 
   const addRecord = useCallback((record: WeighingRecord) => {
     setRecords((prev) => [record, ...prev]);
+
+    if (countNewLog < 3) {
+      setCountNewLog((prev) => prev + 1);
+    } else {
+      console.log("Batas log baru tercapai, menghapus log lama...");
+      setRecords((prev) => {
+          const printed = prev.map((r, idx) => (r.printed ? idx : -1)).filter(idx => idx !== -1).slice(0, 2);
+          
+          return prev.filter((_, idx) => !printed.includes(idx));
+      });
+      setCountNewLog(0);
+      setSecondCount((prev) => prev + 1);
+    }
   }, []);
 
   const updateRecord = useCallback((updated: WeighingRecord) => {
@@ -140,6 +160,7 @@ const Index = () => {
           records={records}
           selectedRecord={selectedRecord}
           onSelectRecord={setSelectedRecord}
+          forWeighing={true}
         />
       </div>
     </div>
