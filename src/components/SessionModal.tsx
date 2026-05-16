@@ -4,15 +4,25 @@ import { useState } from "react";
 export default function SessionModal() {
   const { sessionActive, setSessionActive } = useSession();
   const [input, setInput] = useState("");
-  const correctValue = "your-secret";
+  const [berhasil, setBerhasil] = useState(true);
 
-  const aksesLogin = [
-    { "mhnmd": {lokasi: "Mahendradata", role: "penimbang"} },
-    { "cpdv": {lokasi: "Cargo", role: "penimbang"} },
-    { "*abg1": {lokasi: null, role: "admin"} },
-  ];
+  const aksesLogin = {
+    mhnmd: {lokasi: "Mahendradata", role: "penimbang"},
+    cpdv: {lokasi: "Cargo", role: "penimbang"},
+    "*abg1": {lokasi: null, role: "admin"}
+  };
 
   if (sessionActive) return null;
+
+  const handleLogin = () => {
+    const user = aksesLogin[input];
+    if (user) {
+      setSessionActive(user);
+      setBerhasil(true);
+    } else {
+      setBerhasil(false);
+    }
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -21,24 +31,21 @@ export default function SessionModal() {
         <input
           type="password"
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={e => {setInput(e.target.value); setBerhasil(true)}}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleLogin()
+          }}
           className="border p-2 rounded"
           autoFocus
         />
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded font-semibold"
-          disabled={input !== correctValue}
-          onClick={() => {
-            const user = aksesLogin.find(u => u[input]);
-            if (user) {
-              setSessionActive(user[input]);
-            }
-          }}
+          onClick={handleLogin}
         >
           Login
         </button>
-        {input && input !== correctValue && (
-          <span className="text-red-500 text-sm">Incorrect value</span>
+        {!berhasil && (
+          <span className="text-red-500 text-sm">Password salah</span>
         )}
       </div>
     </div>

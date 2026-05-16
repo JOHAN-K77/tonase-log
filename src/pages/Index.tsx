@@ -3,9 +3,11 @@ import WeighingForm from "@/components/WeighingForm";
 import RecordList from "@/components/RecordList";
 import { WeighingRecord, Jenis, Supplier, Karyawan, Lokasi } from "@/type/models";
 import api from "@/api/api";
-// import { useSession } from "@/context/SessionContext";
+import { useSession } from "@/context/SessionContext";
 
 const Index = () => {
+  const { sessionActive } = useSession();
+
   const [countNewLog, setCountNewLog] = useState(0);
   const [secondCount, setSecondCount] = useState(0);
 
@@ -16,11 +18,6 @@ const Index = () => {
   const [supplierMaster, setSupplierMaster] = useState<Supplier[]>([]);
   const [karyawanMaster, setKaryawanMaster] = useState<Karyawan[]>([]);
   const [lokasiMaster, setLokasiMaster] = useState<Lokasi[]>([]);
-
-  // const { sessionActive } = useSession();
-  // if (sessionActive === null) {
-  //   return null;
-  // }
 
   useEffect(() => {
     Promise.all([
@@ -139,6 +136,10 @@ const Index = () => {
     );
     setSelectedRecord(updated);
   }, []);
+
+  if (!sessionActive) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col-reverse md:flex-row">

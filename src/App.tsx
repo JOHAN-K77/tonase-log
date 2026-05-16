@@ -19,11 +19,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        {/* <SessionProvider> */}
+        <SessionProvider>
           <SidebarProvider>
             <div className="min-h-screen flex w-full">
               <AppSidebar />
-              {/* <SessionModal /> */}
+              <SessionModal />
               <div className="flex-1 flex flex-col">
                 <header className="h-12 flex items-center border-b">
                   <SidebarTrigger className="ml-2" />
@@ -38,7 +38,7 @@ const App = () => (
               </div>
             </div>
           </SidebarProvider>
-        {/* </SessionProvider> */}
+        </SessionProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

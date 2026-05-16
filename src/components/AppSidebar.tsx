@@ -10,9 +10,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-// import { useSession } from "@/context/SessionContext";
-
-// const { sessionActive } = useSession();
+import { useSession } from "@/context/SessionContext";
 
 const items = [
   { title: "Timbang", url: "/", icon: Scale, confid: false },
@@ -24,6 +22,7 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { sessionActive } = useSession();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
@@ -34,7 +33,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
-                // (sessionActive.role === "admin" || item.confid) &&
+                (sessionActive?.role === "admin" || !item.confid) &&
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
