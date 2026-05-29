@@ -10,6 +10,7 @@ import History from "./pages/History";
 import NotFound from "./pages/NotFound";
 import { SessionProvider } from "./context/SessionContext";
 import SessionModal from "./components/SessionModal";
+import KaryawanPage from "./pages/Karyawan";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +32,9 @@ const App = () => (
                 <main className="flex-1">
                   <Routes>
                     <Route path="/" element={<Index />} />
+                    <Route path="/index" element={<Index />} />
                     <Route path="/history" element={<History />} />
+                    <Route path="/karyawan" element={<KaryawanPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>

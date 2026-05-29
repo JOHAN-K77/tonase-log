@@ -1,28 +1,39 @@
+import { loginReq } from "@/api/auth";
 import { useSession } from "@/context/SessionContext";
 import { useState } from "react";
 
 export default function SessionModal() {
   const { sessionActive, setSessionActive } = useSession();
+
   const [input, setInput] = useState("");
   const [berhasil, setBerhasil] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const aksesLogin = {
-    mhnmd: {lokasi: "Mahendradata", role: "penimbang"},
-    cpdv: {lokasi: "Cargo", role: "penimbang"},
-    "*abg1": {lokasi: null, role: "admin"}
-  };
+  // const aksesLogin = {
+  //   mhnmd: {lokasi: "Mahendradata", role: "penimbang"},
+  //   cpdv: {lokasi: "Cargo", role: "penimbang"},
+  //   "*abg1": {lokasi: null, role: "admin"}
+  // };
 
   if (sessionActive) return null;
-
-  const handleLogin = () => {
-    const user = aksesLogin[input];
-    if (user) {
-      setSessionActive(user);
-      setBerhasil(true);
-    } else {
+  
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      const user = await loginReq(input);
+      if (user.length > 0) {
+        setSessionActive(user[0]);
+        setBerhasil(true);
+      } else {
+        setBerhasil(false);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
       setBerhasil(false);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

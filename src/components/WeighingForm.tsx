@@ -5,9 +5,7 @@ import { toast } from "sonner";
 import type { WeighingRecord, Supplier, Jenis, Karyawan, Lokasi } from "@/type/models";
 import api from "@/api/api";
 import CetakStruk from "@/lib/CetakStruk";
-// import { useSession } from "@/context/SessionContext";
-
-// const { sessionActive } = useSession();
+import { useSession } from "@/context/SessionContext";
 
 interface WeighingFormProps {
   selectedRecord: WeighingRecord | null;
@@ -30,6 +28,8 @@ export const formatDate = (tanggal: string) => {
 };
 
 const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultOptions }: WeighingFormProps) => {
+  const { sessionActive } = useSession();
+
   const [tonase, setTonase] = useState("");
   const [jenis, setJenis] = useState<Jenis>(null);
   const [supplier, setSupplier] = useState("");
@@ -152,7 +152,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
 
       const timeStr = currentDate.toLocaleTimeString("en-GB", { ...options, hour: "2-digit", minute: "2-digit", second: "2-digit" });
       const dateStr = currentDate.toLocaleDateString("en-CA", options);
-
+      
       const newRecord: WeighingRecord = {
         id: crypto.randomUUID(),
         tonase_awal: tonaseValue,
@@ -168,8 +168,8 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
         penimbang: null,
         pembongkar: null,
         nama_suppl: supplier,
-        // lokasi_gudang: defaultOptions.lokasi.find((opt) => opt.nama_lok === sessionActive.lokasi) || defaultOptions.lokasi[0],
-        lokasi_gudang: defaultOptions.lokasi[0],
+        lokasi_gudang: defaultOptions.lokasi.find((opt) => opt.nama_lok === sessionActive.lokasi) || defaultOptions.lokasi[0],
+        // lokasi_gudang: defaultOptions.lokasi[0],
       };
 
       try {

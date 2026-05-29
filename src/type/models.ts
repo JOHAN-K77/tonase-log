@@ -31,7 +31,7 @@ export interface Jenis {
 export interface Karyawan {
   id: string;
   name: string;
-  no_kary: string;
+  no_kary: string | null;
   role: "Penimbang" | "Pembongkar";
   lokasi: Lokasi;
 }

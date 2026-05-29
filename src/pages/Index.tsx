@@ -4,9 +4,11 @@ import RecordList from "@/components/RecordList";
 import { WeighingRecord, Jenis, Supplier, Karyawan, Lokasi } from "@/type/models";
 import api from "@/api/api";
 import { useSession } from "@/context/SessionContext";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const { sessionActive } = useSession();
+  const navigate = useNavigate();
 
   const [countNewLog, setCountNewLog] = useState(0);
   const [secondCount, setSecondCount] = useState(0);
@@ -55,7 +57,7 @@ const Index = () => {
       
       const lokasiData: Lokasi[]= lokasiRes.data.map((item: any) => ({
         id: String(item.lokasi_id),
-        name: item.nama_gudang,
+        nama_lok: item.nama_gudang,
         alamat: item.alamat
       }));
       if (lokasiData.length > 0) {
@@ -137,7 +139,11 @@ const Index = () => {
     setSelectedRecord(updated);
   }, []);
 
-  if (!sessionActive) {
+  if (sessionActive) {
+    if (sessionActive.role === "admin") {
+      navigate("/karyawan");
+    }
+  } else  {
     return null;
   }
 

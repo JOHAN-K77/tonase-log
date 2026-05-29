@@ -21,7 +21,7 @@ const History = () => {
       ]).then(([jenisRes, supplierRes, lokasiRes]) => {
         const jenisData: Jenis[]= jenisRes.data.map((item: any) => ({
           id: String(item.jenis_id),
-          name: item.nama_jenis,
+          nama_lok: item.nama_jenis,
           price: item.harga
         }));
         
