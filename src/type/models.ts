@@ -25,7 +25,7 @@ export interface Supplier {
 export interface Jenis {
   id: string;
   name: string;
-  price: number;
+  price: number | null;
 }
 
 export interface Karyawan {

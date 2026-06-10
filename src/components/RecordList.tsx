@@ -50,11 +50,11 @@ const RecordList = ({ records, selectedRecord, onSelectRecord, forWeighing = fal
               </span>
             </div>
             <div className="text-sm text-muted-foreground mt-1">
-              {r.nama_suppl} {r.nopol && ` - ${r.nopol}`} ({r.jenis.name})
+              {r.nama_suppl} {r.nopol && ` - ${r.nopol}`} ({r.jenis?.name})
             </div>
             {r.tonase_kosong !== null && (
-              <div className="text-sm text-muted-foreground opacity-60">
-                {r.tonase_kosong} kg (kosong)
+              <div className="text-sm font-bold mt-1">
+                {r.netto} kg
               </div>
             )}
           </div>

@@ -11,6 +11,8 @@ import NotFound from "./pages/NotFound";
 import { SessionProvider } from "./context/SessionContext";
 import SessionModal from "./components/SessionModal";
 import KaryawanPage from "./pages/Karyawan";
+import LokasiPage from "./pages/Lokasi";
+import JenisPage from "./pages/Jenis";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,8 @@ const App = () => (
                     <Route path="/index" element={<Index />} />
                     <Route path="/history" element={<History />} />
                     <Route path="/karyawan" element={<KaryawanPage />} />
+                    <Route path="/lokasi" element={<LokasiPage />} />
+                    <Route path="/jenis" element={<JenisPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>

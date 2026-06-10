@@ -1,5 +1,6 @@
 import api from "@/api/api";
 import KaryawanItem from "@/components/KaryawanItem";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader } from "@/components/ui/dialog";
 import Modal from "@/components/ui/modal";
 import { useSession } from "@/context/SessionContext";
 import { Karyawan, Lokasi } from "@/type/models";
@@ -10,7 +11,9 @@ const KaryawanPage = () => {
   const [employees, setEmployees] = useState<Karyawan[]>([]);
   const [lokasi, setLokasi] = useState<Lokasi[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<Karyawan | null>(null);
-  const [editEmployee, setEditEmployee] = useState<boolean>(false);
+  const [openModalEmployee, setOpenModalEmployee] = useState<boolean>(false);
+  const [modeEdit, setModeEdit] = useState<boolean>(false);
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   const { sessionActive } = useSession();
   const navigate = useNavigate();
@@ -52,9 +55,34 @@ const KaryawanPage = () => {
     return null;
   }
 
-  const openEditKaryawan = (karyawan: Karyawan) => {
+  const openKaryawanModal = (karyawan?: Karyawan) => {
+    setModeEdit(true);
     setSelectedEmployee(karyawan);
-    setEditEmployee(true);
+    setOpenModalEmployee(true);
+  }
+
+  const addKaryawan = async () => {
+    try {
+      await api.post("/api/new-karyawan", {
+        name: selectedEmployee?.name,
+        no_kary: selectedEmployee?.no_kary || null,
+        role: selectedEmployee?.role,
+        lokasi_id: selectedEmployee?.lokasi?.id
+      }).then((res) => {
+        const newKaryawan: Karyawan = {
+          id: String(res.data.insertId),
+          name: selectedEmployee?.name,
+          no_kary: selectedEmployee?.no_kary || null,
+          role: selectedEmployee?.role,
+          lokasi: selectedEmployee?.lokasi || null
+        };
+        setEmployees((prev) => [...prev, newKaryawan]);
+        setOpenModalEmployee(false);
+      });
+    }
+    catch (error) {
+      console.error("Error adding employee:", error);
+    }
   }
 
   const editKaryawan = async () => {
@@ -67,36 +95,56 @@ const KaryawanPage = () => {
         lokasi_id: selectedEmployee?.lokasi?.id
       }).then((res) => {
         setEmployees((prev) => prev.map((e) => e.id === selectedEmployee?.id ? { ...e, ...selectedEmployee } : e));
+        setOpenModalEmployee(false);
       });
-      setEditEmployee(false);
     } catch (error) {
       console.error("Error updating employee:", error);
     }
   }
 
-  const deleteKaryawan = (karyawan: Karyawan) => {
-
+  const deleteKaryawan = async (karyawan: Karyawan) => {
+    try {
+      await api.post("/api/delete-row", {
+        table: "karyawan",
+        kolom: "kary_id",
+        id: karyawan.id
+      }).then((res) => {
+        setEmployees((prev) => prev.filter((e) => e.id !== karyawan.id));
+      });
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+    }
   }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <h1 className="text-3xl font-bold mb-6">Karyawan</h1>
+      <button className="ml-4 px-4 py-2 bg-[#0070C0] text-white rounded font-semibold shadow" onClick={() => {
+        setSelectedEmployee(null);
+        setModeEdit(false);
+        setOpenModalEmployee(true);
+      }}>
+        Tambah Karyawan
+      </button>
       {employees.length > 0 ? (
         <div className="space-y-4">
           <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto min-h-0 divide-y divide-border">
               {employees.map((empl) => 
-                <KaryawanItem karyDetail={empl} onEditKary={openEditKaryawan} onDeleteKary={deleteKaryawan} />
+                <KaryawanItem karyDetail={empl} onEditKary={openKaryawanModal} onDeleteKary={() => {
+                  setSelectedEmployee(empl);
+                  setOpenDialog(true);
+                }} />
               )}
             </div>
           </div>
         </div>
       ) : (
         <p className="text-muted-foreground">
-          Data karyawan tidak tersedia karena aplikasi tidak menggunakan database.
+          Data karyawan tidak tersedia
         </p>
       )}
-      <Modal isOpen={editEmployee} title="Edit Karyawan" onClose={() => setEditEmployee(false)}>
+      <Modal isOpen={openModalEmployee} title={modeEdit ? "Edit Karyawan" : "Tambah Karyawan"} onClose={() => setOpenModalEmployee(false)}>
         <div className="form-control">
           <label className="form-control-label">
             <span className="label-text">Nama</span>
@@ -161,10 +209,33 @@ const KaryawanPage = () => {
             ))}
           </select>
         </div>
-        <div className="btn btn-primary mt-6" onClick={editKaryawan}>
+        <div className="btn btn-primary mt-6" onClick={modeEdit ? editKaryawan : addKaryawan}>
           Simpan Perubahan
         </div>
       </Modal>
+      <Dialog open={openDialog} onOpenChange={(open) => setOpenDialog(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <h2 className="text-lg font-semibold">Konfirmasi Hapus</h2>
+          </DialogHeader>
+          <DialogDescription>
+            Apakah Anda yakin ingin menghapus karyawan ini? Tindakan ini tidak dapat dibatalkan.
+          </DialogDescription>
+          <DialogFooter>
+            <button className="btn btn-danger" onClick={() => {
+              if (selectedEmployee) {
+                deleteKaryawan(selectedEmployee);
+              }
+              setOpenDialog(false);
+            }}>
+              Hapus
+            </button>
+            <button className="btn" onClick={() => setOpenDialog(false)}>
+              Batal
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

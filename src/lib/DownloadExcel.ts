@@ -11,7 +11,7 @@ export async function downloadExcel(data: any[], filename: string) {
         worksheet.columns = columns;
         data.forEach(item => {
             worksheet.addRow({...item,
-                Jenis: item.jenis.name,
+                jenis: item.jenis.name,
                 lokasi_gudang: item.lokasi_gudang.nama_lok,
                 pembongkar: item.pembongkar ? item.pembongkar.name : "",
                 penimbang: item.penimbang ? item.penimbang.name : ""

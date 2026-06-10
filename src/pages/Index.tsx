@@ -10,8 +10,8 @@ const Index = () => {
   const { sessionActive } = useSession();
   const navigate = useNavigate();
 
-  const [countNewLog, setCountNewLog] = useState(0);
-  const [secondCount, setSecondCount] = useState(0);
+  const [countNewLog, setCountNewLog] = useState<number>(0);
+  const [secondCount, setSecondCount] = useState<number>(0);
 
   const [records, setRecords] = useState<WeighingRecord[]>([]);
   const [selectedRecord, setSelectedRecord] = useState<WeighingRecord | null>(null);
@@ -21,7 +21,11 @@ const Index = () => {
   const [karyawanMaster, setKaryawanMaster] = useState<Karyawan[]>([]);
   const [lokasiMaster, setLokasiMaster] = useState<Lokasi[]>([]);
 
+  console.log("Session aktif:", sessionActive);
+
   useEffect(() => {
+    if (!sessionActive) return;
+
     Promise.all([
       api.post("/api/fetch-table", { table: "jenis" }),
       api.post("/api/fetch-table", { table: "supplier" }),
@@ -81,8 +85,10 @@ const Index = () => {
           console.log("Ambil tabel karyawan dari database:", res.data)
           setKaryawanMaster(karyawanData);
           console.log("Hasil konversi dari database:", karyawanData);
+          const lok_log = lokasiData.find((l) => l.nama_lok === String(sessionActive?.lokasi)) || null;
+          console.log("Lokasi login:", lok_log);
 
-          api.post("/api/fetch-records", { printed: "0" }).then((res) => {
+          api.post("/api/fetch-records", { printed: "0", lokasi_gudang_lokasi_id: lok_log?.id }).then((res) => {
             console.log("Ambil semua record timbang dari database:", res.data)
             if (res.data.length > 0) {
               const log_timbang: WeighingRecord[] = res.data.map((item: any) => ({
@@ -113,7 +119,13 @@ const Index = () => {
         }
       });
     });
-  }, []);
+  }, [sessionActive]);
+
+  useEffect(() => {
+    if (sessionActive && sessionActive.role === "admin") {
+      navigate("/karyawan");
+    }
+  }, [sessionActive, navigate]);
 
   const addRecord = useCallback((record: WeighingRecord) => {
     setRecords((prev) => [record, ...prev]);
@@ -130,6 +142,16 @@ const Index = () => {
       setCountNewLog(0);
       setSecondCount((prev) => prev + 1);
     }
+
+    if (secondCount >= 3) {
+      console.log("Batas log kedua tercapai, menghapus log lama...");
+      setRecords((prev) => {
+        const printed = prev.map((r, idx) => (r.printed ? idx : -1)).filter(idx => idx !== -1).slice(0, 1);
+
+        return prev.filter((_, idx) => !printed.includes(idx));
+      });
+      setSecondCount(0);
+    }
   }, []);
 
   const updateRecord = useCallback((updated: WeighingRecord) => {
@@ -138,14 +160,6 @@ const Index = () => {
     );
     setSelectedRecord(updated);
   }, []);
-
-  if (sessionActive) {
-    if (sessionActive.role === "admin") {
-      navigate("/karyawan");
-    }
-  } else  {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col-reverse md:flex-row">

@@ -14,11 +14,11 @@ const History = () => {
   const [karyawanList, setKaryawan] = useState<Karyawan[]>([]);
   const [jenisList, setJenis] = useState<Jenis[]>([]);
 
-  const [selectedLokasi, setSelectedLokasi] = useState<Number | null>(null);
-  const [namaSup, setNamaSup] = useState<String>("");
-  const [namaTimb, setNamaTimb] = useState<Number | null>(null);
-  const [namaBongk, setNamaBongk] = useState<Number | null>(null);
-  const [selectedJenis, setSelectedJenis] = useState<Number | null>(null);
+  const [selectedLokasi, setSelectedLokasi] = useState<number | null>(null);
+  const [namaSup, setNamaSup] = useState<string>("");
+  const [namaTimb, setNamaTimb] = useState<number | null>(null);
+  const [namaBongk, setNamaBongk] = useState<number | null>(null);
+  const [selectedJenis, setSelectedJenis] = useState<number | null>(null);
 
   useEffect(() => {
       Promise.all([
@@ -66,7 +66,7 @@ const History = () => {
             api.post("/api/fetch-records", paramToSend).then((res) => {
               console.log("Ambil semua record timbang dari database:", res.data)
               if (res.data.length > 0) {
-                isiRecords(res.data);
+                isiRecords(res.data, jenisData, karyawanData, lokasiData);
               } else {
                 console.log("Belum ada riwayat timbang")
               }
@@ -79,38 +79,40 @@ const History = () => {
     }, [sessionActive]);
 
     useEffect(() => {
-      if (selectedLokasi || namaSup !== "" || namaTimb || namaBongk || selectedJenis) {
-        console.log("Filter for lokasi:", selectedLokasi, "; supplier:", namaSup, "; Penimbang: ", namaTimb, "; Pembongkar: ", namaBongk)
-        
-        const paramToSend = { printed: "1",
-          ...(selectedLokasi && { lokasi_gudang_lokasi_id: selectedLokasi }),
-          ...(namaSup !== "" && { nama_suppl_like: namaSup }),
-          ...(namaTimb && { penimbang_id: namaTimb }),
-          ...(namaBongk && { tenaga_bongkar_id: namaBongk }),
-          ...(selectedJenis && { jenis_jenis_id: selectedJenis })
-        };
-        api.post("/api/fetch-records", paramToSend).then((res) => {
-          if (res.data.length > 0) {
-            isiRecords(res.data);  
-          } else {
-            isiRecords([]);
-            console.log("Tidak ada record yang sesuai dengan filter")
-          }
-        })
-      } else {
-        api.post("/api/fetch-records", { printed: "1" }).then((res) => {
-          if (res.data.length > 0) {
-            isiRecords(res.data);  
-          }
-        })
+      if (sessionActive?.role == "admin") {
+        if (selectedLokasi || namaSup !== "" || namaTimb || namaBongk || selectedJenis) {
+          console.log("Filter for lokasi:", selectedLokasi, "; supplier:", namaSup, "; Penimbang: ", namaTimb, "; Pembongkar: ", namaBongk)
+          
+          const paramToSend = { printed: "1",
+            ...(selectedLokasi && { lokasi_gudang_lokasi_id: selectedLokasi }),
+            ...(namaSup !== "" && { nama_suppl_like: namaSup }),
+            ...(namaTimb && { penimbang_id: namaTimb }),
+            ...(namaBongk && { tenaga_bongkar_id: namaBongk }),
+            ...(selectedJenis && { jenis_jenis_id: selectedJenis })
+          };
+          api.post("/api/fetch-records", paramToSend).then((res) => {
+            if (res.data.length > 0) {
+              isiRecords(res.data, jenisList, karyawanList, lokasiList);  
+            } else {
+              isiRecords([], jenisList, karyawanList, lokasiList);
+              console.log("Tidak ada record yang sesuai dengan filter")
+            }
+          })
+        } else {
+          api.post("/api/fetch-records", { printed: "1" }).then((res) => {
+            if (res.data.length > 0) {
+              isiRecords(res.data, jenisList, karyawanList, lokasiList);  
+            }
+          })
+        }
       }
-    }, [selectedLokasi, namaSup, namaTimb, namaBongk, selectedJenis])
+    }, [sessionActive, selectedLokasi, namaSup, namaTimb, namaBongk, selectedJenis])
 
   if (sessionActive === null) {
     return null;
   }
 
-  const isiRecords = (dataToTransfer: any[]) => {
+  function isiRecords(dataToTransfer: any[], daftarJenis: Jenis[], daftarKary: Karyawan[], daftarLok: Lokasi[]) {
     const log_timbang: WeighingRecord[] = dataToTransfer.map((item: any) => ({
       id: String(item.id_wlog),
       idnota: item.no_nota ?? null,
@@ -120,10 +122,10 @@ const History = () => {
       tonase_kosong: item.timbang_kosong ?? null,
       netto: item.netto ?? null,
       printed: item.printed === 1,
-      jenis: jenisList.find((j) => j.id === String(item.jenis_jenis_id)),
-      lokasi_gudang: lokasiList.find((l) => l.id === String(item.lokasi_gudang_lokasi_id)) || null,
-      penimbang: karyawanList.find((k) => k.id === String(item.penimbang_id)) || null,
-      pembongkar: karyawanList.find((k) => k.id === String(item.tenaga_bongkar_id)) || null,
+      jenis: daftarJenis.find((j) => j.id === String(item.jenis_jenis_id)),
+      lokasi_gudang: daftarLok.find((l) => l.id === String(item.lokasi_gudang_lokasi_id)) || null,
+      penimbang: daftarKary.find((k) => k.id === String(item.penimbang_id)) || null,
+      pembongkar: daftarKary.find((k) => k.id === String(item.tenaga_bongkar_id)) || null,
       tanggal: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(0, 10) : null,
       waktu: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(11, 16) : null,
       supplier: null
@@ -138,10 +140,10 @@ const History = () => {
         <div>
           <div className="input-group">
             <label className="input-group-text">Lokasi Gudang</label>
-            <select className="form-control" value={String(selectedLokasi)} onChange={(e) => setSelectedLokasi(Number(e.target.value) || null)}>
+            <select className="form-control" value={String(selectedLokasi) ?? ""} onChange={(e) => setSelectedLokasi(e.target.value !== "" ? Number(e.target.value) : null)}>
               <option value="">Semua Lokasi</option>
               {lokasiList.map((l) => (
-                <option key={l.id} value={l.id}>
+                <option key={`lok-${l.id}`} value={l.id}>
                   {l.nama_lok}
                 </option>
               ))}
@@ -149,14 +151,14 @@ const History = () => {
           </div>
           <div className="input-group">
             <label className="input-group-text">Nama Supplier</label>
-            <input type="text" className="form-control" onChange={(e) => setNamaSup(e.target.value)} />
+            <input type="text" className="form-control" value={String(namaSup) ?? ""} onChange={(e) => setNamaSup(e.target.value)} />
           </div>
           <div className="input-group">
             <label className="input-group-text">Nama Penimbang</label>
-            <select className="form-control" value={namaTimb ? String(namaTimb) : null} onChange={(e) => setNamaTimb(Number(e.target.value) || null)}>
+            <select className="form-control" value={String(namaTimb) ?? ""} onChange={(e) => setNamaTimb(e.target.value !== "" ? Number(e.target.value) : null)}>
               <option value="">Pilih Penimbang</option>
               {karyawanList.map((k) => (
-                <option key={k.id} value={k.id}>
+                <option key={`timb-${k.id}`} value={k.id}>
                   {k.name}
                 </option>
               ))}
@@ -164,10 +166,10 @@ const History = () => {
           </div>
           <div className="input-group">
             <label className="input-group-text">Nama Tenaga Bongkar</label>
-            <select className="form-control" value={namaBongk ? String(namaBongk) : null} onChange={(e) => setNamaBongk(Number(e.target.value) || null)}>
+            <select className="form-control" value={String(namaBongk) ?? ""} onChange={(e) => setNamaBongk(e.target.value !== "" ? Number(e.target.value) : null)}>
               <option value="">Pilih Tenaga Bongkar</option>
               {karyawanList.map((k) => (
-                <option key={k.id} value={k.id}>
+                <option key={`bongk-${k.id}`} value={k.id}>
                   {k.name}
                 </option>
               ))}
@@ -175,10 +177,10 @@ const History = () => {
           </div>
           <div className="input-group">
             <label className="input-group-text">Jenis</label>
-            <select className="form-control" value={String(selectedJenis)} onChange={(e) => setSelectedJenis(Number(e.target.value) || null)}>
+            <select className="form-control" value={String(selectedJenis) ?? ""} onChange={(e) => setSelectedJenis(e.target.value !== "" ? Number(e.target.value) : null)}>
               <option value="">Semua Jenis</option>
               {jenisList.map((j) => (
-                <option key={j.id} value={j.id}>
+                <option key={`jenis-${j.id}`} value={j.id}>
                   {j.name}
                 </option>
               ))}
