@@ -1,17 +1,24 @@
 import api from "@/api/api";
 import RecordList from "@/components/RecordList";
-// import { useSession } from "@/context/SessionContext";
+import { useSession } from "@/context/SessionContext";
 import { Jenis, Karyawan, Lokasi, Supplier, WeighingRecord } from "@/type/models";
 import { useEffect, useState } from "react";
+import { downloadExcel } from "@/lib/DownloadExcel";
 
 const History = () => {
   const [records, setRecords] = useState<WeighingRecord[]>([]);
   const [selectedRecord, setSelectedRecord] = useState<WeighingRecord | null>(null);
+  const { sessionActive } = useSession();
 
-  // const { sessionActive } = useSession();
-  // if (sessionActive === null) {
-  //   return null;
-  // }
+  const [lokasiList, setLokasi] = useState<Lokasi[]>([]);
+  const [karyawanList, setKaryawan] = useState<Karyawan[]>([]);
+  const [jenisList, setJenis] = useState<Jenis[]>([]);
+
+  const [selectedLokasi, setSelectedLokasi] = useState<Number | null>(null);
+  const [namaSup, setNamaSup] = useState<String>("");
+  const [namaTimb, setNamaTimb] = useState<Number | null>(null);
+  const [namaBongk, setNamaBongk] = useState<Number | null>(null);
+  const [selectedJenis, setSelectedJenis] = useState<Number | null>(null);
 
   useEffect(() => {
       Promise.all([
@@ -21,9 +28,10 @@ const History = () => {
       ]).then(([jenisRes, supplierRes, lokasiRes]) => {
         const jenisData: Jenis[]= jenisRes.data.map((item: any) => ({
           id: String(item.jenis_id),
-          nama_lok: item.nama_jenis,
+          name: item.nama_jenis,
           price: item.harga
         }));
+        setJenis(jenisData);
         
         const supplierData: Supplier[]= supplierRes.data.map((item: any) => ({
           id: String(item.suppl_id),
@@ -33,10 +41,11 @@ const History = () => {
         
         const lokasiData: Lokasi[]= lokasiRes.data.map((item: any) => ({
           id: String(item.lokasi_id),
-          name: item.nama_gudang,
+          nama_lok: item.nama_gudang,
           alamat: item.alamat
         }));
-  
+        setLokasi(lokasiData);
+
         api.post("/api/fetch-table", { table: "karyawan" }).then((res) => {
           const karyawanData: Karyawan[]= res.data.map((item: any) => ({
             id: String(item.kary_id),
@@ -45,30 +54,19 @@ const History = () => {
             role: item.role,
             lokasi: lokasiData.find((l) => l.id === String(item.lokasi_gudang_lokasi_id)) || null
           }));
+          setKaryawan(karyawanData);
           
           if (res.data.length > 0) {
-  
-            api.post("/api/fetch-records", { printed: "1", lokasi_gudang_lokasi_id: lokasiData[0]?.id }).then((res) => {
+            const paramToSend = { printed: "1",
+              ...(sessionActive?.lokasi && {
+                lokasi_gudang_lokasi_id: lokasiData.find((l) => l.nama_lok === sessionActive.lokasi)?.id || lokasiData[0].id
+              })
+            };
+
+            api.post("/api/fetch-records", paramToSend).then((res) => {
               console.log("Ambil semua record timbang dari database:", res.data)
               if (res.data.length > 0) {
-                const log_timbang: WeighingRecord[] = res.data.map((item: any) => ({
-                  id: String(item.id_wlog),
-                  idnota: item.no_nota ?? null,
-                  nama_suppl: item.nama_suppl,
-                  nopol: item.nopol ?? null,
-                  tonase_awal: item.timbang_awal,
-                  tonase_kosong: item.timbang_kosong ?? null,
-                  netto: item.netto ?? null,
-                  printed: item.printed === 1,
-                  jenis: jenisData.find((j) => j.id === String(item.jenis_jenis_id)),
-                  lokasi: lokasiData.find((l) => l.id === String(item.lokasi_gudang_lokasi_id)) || null,
-                  penimbang: karyawanData.find((k) => k.id === String(item.penimbang_id)) || null,
-                  pembongkar: karyawanData.find((k) => k.id === String(item.tenaga_bongkar_id)) || null,
-                  tanggal: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(0, 10) : null,
-                  waktu: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(11, 16) : null,
-                }))
-                setRecords(log_timbang)
-                console.log("Hasil konversi dari database:", log_timbang);
+                isiRecords(res.data);
               } else {
                 console.log("Belum ada riwayat timbang")
               }
@@ -78,10 +76,120 @@ const History = () => {
           }
         });
       });
-    }, []);
+    }, [sessionActive]);
+
+    useEffect(() => {
+      if (selectedLokasi || namaSup !== "" || namaTimb || namaBongk || selectedJenis) {
+        console.log("Filter for lokasi:", selectedLokasi, "; supplier:", namaSup, "; Penimbang: ", namaTimb, "; Pembongkar: ", namaBongk)
+        
+        const paramToSend = { printed: "1",
+          ...(selectedLokasi && { lokasi_gudang_lokasi_id: selectedLokasi }),
+          ...(namaSup !== "" && { nama_suppl_like: namaSup }),
+          ...(namaTimb && { penimbang_id: namaTimb }),
+          ...(namaBongk && { tenaga_bongkar_id: namaBongk }),
+          ...(selectedJenis && { jenis_jenis_id: selectedJenis })
+        };
+        api.post("/api/fetch-records", paramToSend).then((res) => {
+          if (res.data.length > 0) {
+            isiRecords(res.data);  
+          } else {
+            isiRecords([]);
+            console.log("Tidak ada record yang sesuai dengan filter")
+          }
+        })
+      } else {
+        api.post("/api/fetch-records", { printed: "1" }).then((res) => {
+          if (res.data.length > 0) {
+            isiRecords(res.data);  
+          }
+        })
+      }
+    }, [selectedLokasi, namaSup, namaTimb, namaBongk, selectedJenis])
+
+  if (sessionActive === null) {
+    return null;
+  }
+
+  const isiRecords = (dataToTransfer: any[]) => {
+    const log_timbang: WeighingRecord[] = dataToTransfer.map((item: any) => ({
+      id: String(item.id_wlog),
+      idnota: item.no_nota ?? null,
+      nama_suppl: item.nama_suppl,
+      nopol: item.nopol ?? null,
+      tonase_awal: item.timbang_awal,
+      tonase_kosong: item.timbang_kosong ?? null,
+      netto: item.netto ?? null,
+      printed: item.printed === 1,
+      jenis: jenisList.find((j) => j.id === String(item.jenis_jenis_id)),
+      lokasi_gudang: lokasiList.find((l) => l.id === String(item.lokasi_gudang_lokasi_id)) || null,
+      penimbang: karyawanList.find((k) => k.id === String(item.penimbang_id)) || null,
+      pembongkar: karyawanList.find((k) => k.id === String(item.tenaga_bongkar_id)) || null,
+      tanggal: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(0, 10) : null,
+      waktu: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(11, 16) : null,
+      supplier: null
+    }))
+    setRecords(log_timbang)
+    console.log("Hasil konversi dari database:", log_timbang);
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
+      {sessionActive.role == "admin" && (
+        <div>
+          <div className="input-group">
+            <label className="input-group-text">Lokasi Gudang</label>
+            <select className="form-control" value={String(selectedLokasi)} onChange={(e) => setSelectedLokasi(Number(e.target.value) || null)}>
+              <option value="">Semua Lokasi</option>
+              {lokasiList.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.nama_lok}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="input-group">
+            <label className="input-group-text">Nama Supplier</label>
+            <input type="text" className="form-control" onChange={(e) => setNamaSup(e.target.value)} />
+          </div>
+          <div className="input-group">
+            <label className="input-group-text">Nama Penimbang</label>
+            <select className="form-control" value={namaTimb ? String(namaTimb) : null} onChange={(e) => setNamaTimb(Number(e.target.value) || null)}>
+              <option value="">Pilih Penimbang</option>
+              {karyawanList.map((k) => (
+                <option key={k.id} value={k.id}>
+                  {k.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="input-group">
+            <label className="input-group-text">Nama Tenaga Bongkar</label>
+            <select className="form-control" value={namaBongk ? String(namaBongk) : null} onChange={(e) => setNamaBongk(Number(e.target.value) || null)}>
+              <option value="">Pilih Tenaga Bongkar</option>
+              {karyawanList.map((k) => (
+                <option key={k.id} value={k.id}>
+                  {k.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="input-group">
+            <label className="input-group-text">Jenis</label>
+            <select className="form-control" value={String(selectedJenis)} onChange={(e) => setSelectedJenis(Number(e.target.value) || null)}>
+              <option value="">Semua Jenis</option>
+              {jenisList.map((j) => (
+                <option key={j.id} value={j.id}>
+                  {j.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button className="btn btn-primary mt-3" onClick={() => downloadExcel(records, "riwayat_timbang")}>
+            Download Excel
+          </button>
+        </div>
+      )}
+
       <h1 className="text-3xl font-bold mb-6">Riwayat</h1>
       {records.length > 0 ? (
         <div className="space-y-4">
@@ -89,7 +197,7 @@ const History = () => {
         </div>
       ) : (
         <p className="text-muted-foreground">
-          Data riwayat tidak tersedia karena aplikasi tidak menggunakan database.
+          Data riwayat tidak ditemukan
         </p>
       )}
     </div>

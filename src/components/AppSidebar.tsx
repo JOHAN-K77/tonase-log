@@ -12,19 +12,44 @@ import {
 } from "@/components/ui/sidebar";
 import { useSession } from "@/context/SessionContext";
 
-const items = [
-  { title: "Timbang", url: "/", icon: Scale, confid: false },
-  { title: "Riwayat", url: "/history", icon: History, confid: false },
-  { title: "Karyawan", url: "/karyawan", icon: History, confid: true },
-  { title: "Jenis", url: "/jenis", icon: History, confid: true },
-  { title: "Lokasi", url: "/lokasi", icon: History, confid: true },
-  { title: "Supplier", url: "/supplier", icon: History, confid: true },
+type SidebarItem = {
+  title: string;
+  url: string;
+  icon: React.ElementType;
+  access?: "admin" | "non-admin";
+};
+
+const items: SidebarItem[] = [
+  { title: "Timbang", url: "/", icon: Scale, access: "non-admin" },
+  { title: "Riwayat", url: "/history", icon: History },
+  { title: "Karyawan", url: "/karyawan", icon: History, access: "admin" },
+  { title: "Jenis", url: "/jenis", icon: History, access: "admin" },
+  { title: "Lokasi", url: "/lokasi", icon: History, access: "admin" },
+  { title: "Supplier", url: "/supplier", icon: History, access: "admin" },
 ];
 
 export function AppSidebar() {
   const { sessionActive } = useSession();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+
+  const DisplaySidebar = ({toDisplay}: {toDisplay: SidebarItem}) => {
+    return (
+      <SidebarMenuItem key={toDisplay.title}>
+        <SidebarMenuButton asChild>
+          <NavLink
+            to={toDisplay.url}
+            end
+            className="hover:bg-muted/50"
+            activeClassName="bg-muted text-primary font-medium"
+          >
+            <toDisplay.icon className="mr-2 h-4 w-4" />
+            {!collapsed && <span>{toDisplay.title}</span>}
+          </NavLink>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -33,36 +58,11 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
-                (sessionActive?.role === "admin") ?
-                (item.confid) &&
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end
-                      className="hover:bg-muted/50"
-                      activeClassName="bg-muted text-primary font-medium"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                :
-                (!item.confid) &&
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end
-                      className="hover:bg-muted/50"
-                      activeClassName="bg-muted text-primary font-medium"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                (!item.access) ?
+                  <DisplaySidebar toDisplay={item} />
+                  : (item.access === "admin" && sessionActive?.role === "admin")
+                    ? <DisplaySidebar toDisplay={item} />
+                    : (item.access === "non-admin" && sessionActive?.role !== "admin") ? <DisplaySidebar toDisplay={item} /> : null
                 ))}
             </SidebarMenu>
           </SidebarGroupContent>

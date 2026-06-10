@@ -109,6 +109,8 @@ const CetakStruk = (recordToPrint: WeighingRecord) => {
           centerX, y2, { align: "center" }
         );
         y2 += 5;
+        doc.text(recordToPrint.lokasi_gudang.nama_lok, lm, y2);
+        y2 += 4;
         doc.setLineWidth(0.2);
         doc.line(lm, y2, rm, y2);
         y2 += 4;
