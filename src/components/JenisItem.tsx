@@ -17,7 +17,7 @@ const JenisItem = ({ jenisDetail, onEditJenis, onDeleteJenis }: JenisItemProps) 
         <div>
           <span className="text-xl font-bold">{jenisDetail.name}</span>
         </div>
-        {jenisDetail.price !== undefined && jenisDetail.price !== 0 &&
+        {jenisDetail.price && jenisDetail.price !== undefined && jenisDetail.price !== 0 &&
         <span className="text-sm text-right whitespace-pre-line text-muted-foreground">
           {jenisDetail.price.toLocaleString("id-ID", { style: "currency", currency: "IDR" })}
         </span>}

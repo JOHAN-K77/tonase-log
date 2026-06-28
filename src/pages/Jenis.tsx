@@ -144,7 +144,7 @@ const JenisPage = () => {
             className="form-control-input"
             value={selectedJenis?.price || "0"}
             onChange={(e) => {
-              setSelectedJenis({ ...selectedJenis, price: Number(e.target.value) })
+              setSelectedJenis({ ...selectedJenis, price: Number(e.target.value) || 0 })
             }}
           />
         </div>
