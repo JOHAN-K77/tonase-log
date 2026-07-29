@@ -105,6 +105,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
         tonase_kosong: tonaseKosong,
         netto,
         printed: true,
+        lokasi_gudang: defaultOptions.lokasi.find((opt) => opt.nama_lok === sessionActive.lokasi) || defaultOptions.lokasi[0],
       };
       onRecordUpdated(updated);
 
