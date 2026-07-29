@@ -66,17 +66,19 @@ const KaryawanPage = () => {
       await api.post("/api/new-karyawan", {
         name: selectedEmployee?.name,
         no_kary: selectedEmployee?.no_kary || null,
-        role: selectedEmployee?.role,
+        role: selectedEmployee?.role || "Penimbang",
         lokasi_id: selectedEmployee?.lokasi?.id
       }).then((res) => {
+        const insertedId = res.data.id ?? res.data.insertId ?? null;
         const newKaryawan: Karyawan = {
-          id: String(res.data.insertId),
+          id: insertedId ? String(insertedId) : "",
           name: selectedEmployee?.name,
           no_kary: selectedEmployee?.no_kary || null,
-          role: selectedEmployee?.role,
+          role: selectedEmployee?.role || "Penimbang",
           lokasi: selectedEmployee?.lokasi || null
         };
         setEmployees((prev) => [...prev, newKaryawan]);
+        setSelectedEmployee((prev) => prev ? { ...prev, id: insertedId ? String(insertedId) : prev.id } : null);
         setOpenModalEmployee(false);
       });
     }
@@ -91,7 +93,7 @@ const KaryawanPage = () => {
         id: selectedEmployee?.id,
         nama: selectedEmployee?.name,
         no_identitas: selectedEmployee?.no_kary || null,
-        role: selectedEmployee?.role,
+        role: selectedEmployee?.role || "Penimbang",
         lokasi_id: selectedEmployee?.lokasi?.id
       }).then((res) => {
         setEmployees((prev) => prev.map((e) => e.id === selectedEmployee?.id ? { ...e, ...selectedEmployee } : e));

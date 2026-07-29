@@ -48,8 +48,9 @@ const LokasiPage = () => {
             name: selectedLokasi?.nama_lok,
             alamat: selectedLokasi?.alamat || null
           }).then((res) => {
+            const insertedId = res.data.id ?? res.data.insertId ?? null;
             const newLokasi: Lokasi = {
-              id: String(res.data.insertId),
+              id: insertedId ? String(insertedId) : "",
               nama_lok: selectedLokasi?.nama_lok,
               alamat: selectedLokasi?.alamat || null
             };
