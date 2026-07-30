@@ -58,10 +58,22 @@ const RecordDetail = ({ record, onClose, canPrint }: RecordDetailProps) => {
                 <span className="text-base font-medium">{record.penimbang.name}</span>
               </div>
             )}
-            {record.pembongkar && (
+            {record.pembongkar1 && (
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-muted-foreground">Kary. Bongkar:</span>
-                <span className="text-base font-medium">{record.pembongkar.name}</span>
+                <span className="text-muted-foreground">Kary. Bongkar 1:</span>
+                <span className="text-base font-medium">{record.pembongkar1.name}</span>
+              </div>
+            )}
+            {record.pembongkar2 && (
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="text-muted-foreground">Kary. Bongkar 2:</span>
+                <span className="text-base font-medium">{record.pembongkar2.name}</span>
+              </div>
+            )}
+            {record.pembongkar3 && (
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="text-muted-foreground">Kary. Bongkar 3:</span>
+                <span className="text-base font-medium">{record.pembongkar3.name}</span>
               </div>
             )}
             <div className="flex items-baseline gap-2">
