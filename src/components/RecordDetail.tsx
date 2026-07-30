@@ -18,6 +18,8 @@ const RecordDetail = ({ record, onClose, canPrint }: RecordDetailProps) => {
     return `${day}/${month}/${year}`;
   };
 
+  const jmlPembongkar = [record.pembongkar1, record.pembongkar2, record.pembongkar3].filter(Boolean).length ?? 0;
+
   return (
     <div className="flex flex-col h-full">
       <div className="bg-primary text-primary-foreground px-6 py-4 flex items-center justify-between">
@@ -61,19 +63,19 @@ const RecordDetail = ({ record, onClose, canPrint }: RecordDetailProps) => {
             {record.pembongkar1 && (
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-muted-foreground">Kary. Bongkar 1:</span>
-                <span className="text-base font-medium">{record.pembongkar1.name}</span>
+                <span className="text-base font-medium">{record.pembongkar1.name} {jmlPembongkar > 1 && `(${record.netto / jmlPembongkar} kg)`}</span>
               </div>
             )}
             {record.pembongkar2 && (
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-muted-foreground">Kary. Bongkar 2:</span>
-                <span className="text-base font-medium">{record.pembongkar2.name}</span>
+                <span className="text-base font-medium">{record.pembongkar2.name} {jmlPembongkar > 1 && `(${record.netto / jmlPembongkar} kg)`}</span>
               </div>
             )}
             {record.pembongkar3 && (
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-muted-foreground">Kary. Bongkar 3:</span>
-                <span className="text-base font-medium">{record.pembongkar3.name}</span>
+                <span className="text-base font-medium">{record.pembongkar3.name} {jmlPembongkar > 1 && `(${record.netto / jmlPembongkar} kg)`}</span>
               </div>
             )}
             <div className="flex items-baseline gap-2">

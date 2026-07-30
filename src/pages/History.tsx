@@ -188,7 +188,7 @@ const History = () => {
               ))}
             </select>
           </div>
-          <button className="btn btn-primary mt-3" onClick={() => downloadExcel(records, "riwayat_timbang")}>
+          <button className="btn btn-primary mt-3" onClick={() => downloadExcel(records, "riwayat_timbang" + (selectedLokasi ? `_lokasi_${selectedLokasi}` : "") + (namaSup ? `_supplier_${namaSup}` : "") + (namaTimb ? `_penimbang_${namaTimb}` : "") + (namaBongk ? `_bongkar_${namaBongk}` : "") + (selectedJenis ? `_jenis_${selectedJenis}` : ""))}>
             Download Excel
           </button>
         </div>
