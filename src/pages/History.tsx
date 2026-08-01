@@ -66,6 +66,7 @@ const History = () => {
             api.post("/api/fetch-records", paramToSend).then((res) => {
               console.log("Ambil semua record timbang dari database:", res.data)
               if (res.data.length > 0) {
+                console.log("Hasil ambil dari database:", res.data);
                 isiRecords(res.data, jenisData, karyawanData, lokasiData);
               } else {
                 console.log("Belum ada riwayat timbang")
@@ -129,12 +130,25 @@ const History = () => {
       pembongkar2: daftarKary.find((k) => k.id === String(item.tenaga_bongkar2_id)) || null,
       pembongkar3: daftarKary.find((k) => k.id === String(item.tenaga_bongkar3_id)) || null,
       tanggal: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(0, 10) : null,
-      waktu: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(11, 16) : null,
+      waktu: new Date(item.waktu_timbang).toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "Asia/Singapore", // GMT+8
+      }) || null,
       supplier: null
     }))
     setRecords(log_timbang)
     console.log("Hasil konversi dari database:", log_timbang);
   }
+
+  const currentDate = new Date();
+  const options = { timeZone: "Asia/Singapore", hour12: false };
+
+  const timeStr = currentDate.toLocaleTimeString("en-GB", { ...options, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const dateStr = currentDate.toLocaleDateString("en-CA", options);
+
+  const dateTimeStrCurr = `${dateStr} ${timeStr}`;
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -188,7 +202,7 @@ const History = () => {
               ))}
             </select>
           </div>
-          <button className="btn btn-primary mt-3" onClick={() => downloadExcel(records, "riwayat_timbang" + (selectedLokasi ? `_lokasi_${selectedLokasi}` : "") + (namaSup ? `_supplier_${namaSup}` : "") + (namaTimb ? `_penimbang_${namaTimb}` : "") + (namaBongk ? `_bongkar_${namaBongk}` : "") + (selectedJenis ? `_jenis_${selectedJenis}` : ""))}>
+          <button className="btn btn-primary mt-3" onClick={() => downloadExcel(records, "riwayat_timbang" + dateTimeStrCurr)}>
             Download Excel
           </button>
         </div>

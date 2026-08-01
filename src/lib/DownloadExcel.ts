@@ -36,6 +36,8 @@ export async function downloadExcel(data: any[], filename: string, customColumns
         worksheet.addRow(['No data available']);
     } else {
         const baseColumns = [
+            { header: 'Tanggal', key: 'tanggal' },
+            { header: 'Waktu', key: 'waktu' },
             { header: 'ID Nota', key: 'idnota' },
             { header: 'Nama Supplier', key: 'nama_suppl' },
             { header: 'No. Polisi', key: 'nopol' },
