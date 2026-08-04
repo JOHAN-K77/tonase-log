@@ -117,7 +117,7 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
           jenis_id: updated.jenis?.id,
           penimbang_id: updated.penimbang?.id || null,
           pembongkar_id: updated.pembongkar?.id || null,
-          printed: "1",
+          printed: 1,
         }).then((res) => {
           setTonase("");
           setSupplier("");
@@ -180,7 +180,8 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
           nama_supplier: newRecord.nama_suppl,
           nopol: newRecord.nopol,
           idjenis: newRecord.jenis?.id,
-          idlokasi: newRecord.lokasi_gudang?.id
+          idlokasi: newRecord.lokasi_gudang?.id,
+          printed: 0,
         }).then((res) => {
           console.log("Response from server after adding new log:", res.data);
 
