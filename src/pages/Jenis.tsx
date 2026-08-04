@@ -46,14 +46,16 @@ const JenisPage = () => {
     try {
       await api.post("/api/new-jenis", {
         name: selectedJenis?.name,
-        price: selectedJenis?.price || null
+        price: selectedJenis?.price || 0
       }).then((res) => {
+        const insertedId = res.data.id ?? res.data.insertId ?? null;
         const newJenis: Jenis = {
-          id: String(res.data.insertId),
+          id: insertedId ? String(insertedId) : "",
           name: selectedJenis?.name,
-          price: selectedJenis?.price || null
+          price: selectedJenis?.price || 0
         };
         setJenis((prev) => [...prev, newJenis]);
+        setSelectedJenis((prev) => prev ? { ...prev, id: insertedId ? String(insertedId) : prev.id } : null);
         setOpenModalJenis(false);
       });
     }
