@@ -87,7 +87,7 @@ const History = () => {
             ...(selectedLokasi && { lokasi_gudang_lokasi_id: selectedLokasi }),
             ...(namaSup !== "" && { nama_suppl_like: namaSup }),
             ...(namaTimb && { penimbang_id: namaTimb }),
-            ...(namaBongk && { tenaga_bongkar_id: namaBongk }),
+            ...(namaBongk !== null && { tenaga_bongkar_like: String(namaBongk) }),
             ...(selectedJenis && { jenis_jenis_id: selectedJenis })
           };
           api.post("/api/fetch-records", paramToSend).then((res) => {
@@ -125,7 +125,9 @@ const History = () => {
       jenis: daftarJenis.find((j) => j.id === String(item.jenis_jenis_id)),
       lokasi_gudang: daftarLok.find((l) => l.id === String(item.lokasi_gudang_lokasi_id)) || null,
       penimbang: daftarKary.find((k) => k.id === String(item.penimbang_id)) || null,
-      pembongkar: daftarKary.find((k) => k.id === String(item.tenaga_bongkar_id)) || null,
+      pembongkar1: daftarKary.find((k) => k.id === String(item.tenaga_bongkar1_id)) || null,
+      pembongkar2: daftarKary.find((k) => k.id === String(item.tenaga_bongkar2_id)) || null,
+      pembongkar3: daftarKary.find((k) => k.id === String(item.tenaga_bongkar3_id)) || null,
       tanggal: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(0, 10) : null,
       waktu: new Date(item.waktu_timbang).toLocaleTimeString("en-GB", {
         hour: "2-digit",

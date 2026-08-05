@@ -79,7 +79,10 @@ const CetakStruk = (recordToPrint: WeighingRecord) => {
         tempDoc.text("Tenaga Bongkar", colLeftX, y, { align: "center" });
         tempDoc.text("Penimbang", colRightX, y, { align: "center" });
         y += 12;
-        tempDoc.text(`( ${recordToPrint.pembongkar ? recordToPrint.pembongkar.name : ""} )`, colLeftX, y, { align: "center" });
+        const pembongkar1: string = recordToPrint.pembongkar1 ? recordToPrint.pembongkar1.name : "";
+        const pembongkar2: string = recordToPrint.pembongkar2 ? recordToPrint.pembongkar2.name : "";
+        const pembongkar3: string = recordToPrint.pembongkar3 ? recordToPrint.pembongkar3.name : "";
+        tempDoc.text(`( ${pembongkar1} , ${pembongkar2} , ${pembongkar3} )`, colLeftX, y, { align: "center" });
         tempDoc.text(`( ${recordToPrint.penimbang ? recordToPrint.penimbang.name : ""} )`, colRightX, y, { align: "center" });
         y += 6;
     
@@ -140,7 +143,10 @@ const CetakStruk = (recordToPrint: WeighingRecord) => {
         doc.text("Tenaga Bongkar", colLeftX, y2, { align: "center" });
         doc.text("Penimbang", colRightX, y2, { align: "center" });
         y2 += 12;
-        doc.text(`( ${recordToPrint.pembongkar ? recordToPrint.pembongkar.name : ""} )`, colLeftX, y2, { align: "center" });
+        const bongkar1: string = recordToPrint.pembongkar1 ? recordToPrint.pembongkar1.name : "";
+        const bongkar2: string = recordToPrint.pembongkar2 ? recordToPrint.pembongkar2.name : "";
+        const bongkar3: string = recordToPrint.pembongkar3 ? recordToPrint.pembongkar3.name : "";
+        doc.text(`( ${bongkar1} , ${bongkar2} , ${bongkar3} )`, colLeftX, y2, { align: "center" });
         doc.text(`( ${recordToPrint.penimbang ? recordToPrint.penimbang.name : ""} )`, colRightX, y2, { align: "center" });
     
         doc.save(`nota_${recordToPrint.nama_suppl}_${recordToPrint.tanggal}.pdf`);

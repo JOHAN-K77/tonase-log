@@ -36,7 +36,9 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
   const [nopol, setNopol] = useState("");
   const [idnota, setIdnota] = useState("");
   const [penimbang, setPenimbang] = useState<Karyawan>(null);
-  const [pembongkar, setPembongkar] = useState<Karyawan>(null);
+  const [pembongkar1, setPembongkar1] = useState<Karyawan>(null);
+  const [pembongkar2, setPembongkar2] = useState<Karyawan>(null);
+  const [pembongkar3, setPembongkar3] = useState<Karyawan>(null);
 
   // Sync fields when a record is selected
   useEffect(() => {
@@ -46,7 +48,9 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
       setNopol(selectedRecord.nopol ?? "");
       setIdnota(selectedRecord.idnota ?? "");
       setPenimbang(selectedRecord.penimbang ?? null);
-      setPembongkar(selectedRecord.pembongkar ?? null);
+      setPembongkar1(selectedRecord.pembongkar1 ?? null);
+      setPembongkar2(selectedRecord.pembongkar2 ?? null);
+      setPembongkar3(selectedRecord.pembongkar3 ?? null);
     }
   }, [selectedRecord]);
 
@@ -101,7 +105,9 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
         nopol: nopol || null,
         idnota: idnota || null,
         penimbang: penimbang || null,
-        pembongkar: pembongkar || null,
+        pembongkar1: pembongkar1 || null,
+        pembongkar2: pembongkar2 || null,
+        pembongkar3: pembongkar3 || null,
         tonase_kosong: tonaseKosong,
         netto,
         printed: true,
@@ -116,7 +122,9 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
           netto: updated.netto,
           jenis_id: updated.jenis?.id,
           penimbang_id: updated.penimbang?.id || null,
-          pembongkar_id: updated.pembongkar?.id || null,
+          pembongkar1_id: updated.pembongkar1?.id || null,
+          pembongkar2_id: updated.pembongkar2?.id || null,
+          pembongkar3_id: updated.pembongkar3?.id || null,
           printed: 1,
         }).then((res) => {
           setTonase("");
@@ -166,7 +174,9 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
         nopol: nopol || null,
         idnota: idnota || null,
         penimbang: null,
-        pembongkar: null,
+        pembongkar1: null,
+        pembongkar2: null,
+        pembongkar3: null,
         nama_suppl: supplier,
         lokasi_gudang: defaultOptions.lokasi.find((opt) => opt.nama_lok === sessionActive.lokasi) || defaultOptions.lokasi[0],
         // lokasi_gudang: defaultOptions.lokasi[0],
@@ -192,6 +202,9 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
           setSupplier("");
           setNopol("");
           setIdnota("");
+          setPembongkar1(null);
+          setPembongkar2(null);
+          setPembongkar3(null);
           toast.success("Data berhasil disimpan!");
         });
       } catch (error) {
@@ -290,31 +303,63 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
         {selectedRecord && (
           <>
             <div>
-              <Label className="text-sm text-muted-foreground mb-1">Penimbang</Label>
-              <select
-                value={penimbang?.id ?? ""}
-                onChange={(e) => setPenimbang(defaultOptions.karyawan.find((k) => k.id === e.target.value) || null)}
-                disabled={isPrinted}
-                className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm disabled:opacity-70"
-              >
-                {defaultOptions.karyawan.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
+              <div>
+                <Label className="text-sm text-muted-foreground mb-1">Penimbang</Label>
+                <select
+                  value={penimbang?.id ?? ""}
+                  onChange={(e) => setPenimbang(defaultOptions.karyawan.find((k) => k.id === e.target.value) || null)}
+                  disabled={isPrinted}
+                  className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm disabled:opacity-70"
+                >
+                  {defaultOptions.karyawan.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label className="text-sm text-muted-foreground mb-1">Kary. Bongkar 2</Label>
+                <select
+                  value={pembongkar2?.id ?? ""}
+                  onChange={(e) => setPembongkar2(defaultOptions.karyawan.find((k) => k.id === e.target.value) || null)}
+                  disabled={isPrinted}
+                  className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm disabled:opacity-70"
+                >
+                  <option value={null}> (opsional)</option>
+                  {defaultOptions.karyawan.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div>
-              <Label className="text-sm text-muted-foreground mb-1">Kary. Bongkar</Label>
-              <select
-                value={pembongkar?.id ?? ""}
-                onChange={(e) => setPembongkar(defaultOptions.karyawan.find((k) => k.id === e.target.value) || null)}
-                disabled={isPrinted}
-                className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm disabled:opacity-70"
-              >
-                <option value={null}> (opsional)</option>
-                {defaultOptions.karyawan.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
+              <div>
+                <Label className="text-sm text-muted-foreground mb-1">Kary. Bongkar 1</Label>
+                <select
+                  value={pembongkar1?.id ?? ""}
+                  onChange={(e) => setPembongkar1(defaultOptions.karyawan.find((k) => k.id === e.target.value) || null)}
+                  disabled={isPrinted}
+                  className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm disabled:opacity-70"
+                >
+                  <option value={null}> (opsional)</option>
+                  {defaultOptions.karyawan.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label className="text-sm text-muted-foreground mb-1">Kary. Bongkar 3</Label>
+                <select
+                  value={pembongkar3?.id ?? ""}
+                  onChange={(e) => setPembongkar3(defaultOptions.karyawan.find((k) => k.id === e.target.value) || null)}
+                  disabled={isPrinted}
+                  className="flex h-10 w-full rounded-md border border-foreground/30 bg-background px-3 py-2 text-sm disabled:opacity-70"
+                >
+                  <option value={null}> (opsional)</option>
+                  {defaultOptions.karyawan.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </>
         )}

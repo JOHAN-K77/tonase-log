@@ -10,7 +10,9 @@ export interface WeighingRecord {
   printed: boolean;
   idnota: string | null;
   penimbang: Karyawan | null;
-  pembongkar: Karyawan | null;
+  pembongkar1: Karyawan | null;
+  pembongkar2: Karyawan | null;
+  pembongkar3: Karyawan | null;
   nama_suppl: string;
   nopol: string | null;
   lokasi_gudang: Lokasi;
