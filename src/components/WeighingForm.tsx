@@ -95,6 +95,11 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
       return;
     }
 
+    if (selectedRecord && (!penimbang || !pembongkar2)) {
+      toast.error("Penimbang dan tenaga bongkar 2 wajib dipilih saat timbang kedua!");
+      return;
+    }
+
     if (selectedRecord) {
       // Second weigh — prioritize latest edits except for initial/final weight
       const tonaseKosong = tonaseValue;

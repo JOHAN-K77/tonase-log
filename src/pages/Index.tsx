@@ -103,7 +103,9 @@ const Index = () => {
                 jenis: jenisData.find((j) => j.id === String(item.jenis_jenis_id)),
                 lokasi: lokasiData.find((l) => l.id === String(item.lokasi_gudang_lokasi_id)) || null,
                 penimbang: karyawanData.find((k) => k.id === String(item.penimbang_id)) || null,
-                pembongkar: karyawanData.find((k) => k.id === String(item.tenaga_bongkar_id)) || null,
+                pembongkar1: karyawanData.find((k) => k.id === String(item.tenaga_bongkar1_id)) || null,
+                pembongkar2: karyawanData.find((k) => k.id === String(item.tenaga_bongkar2_id)) || null,
+                pembongkar3: karyawanData.find((k) => k.id === String(item.tenaga_bongkar3_id)) || null,
                 tanggal: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(0, 10) : null,
                 waktu: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(11, 16) : null,
               }))
