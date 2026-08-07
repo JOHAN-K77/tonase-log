@@ -95,8 +95,8 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
       return;
     }
 
-    if (selectedRecord && (!penimbang || !pembongkar2)) {
-      toast.error("Penimbang dan tenaga bongkar 2 wajib dipilih saat timbang kedua!");
+    if (selectedRecord && (!penimbang || !pembongkar1)) {
+      toast.error("Penimbang dan tenaga bongkar 1 wajib dipilih saat timbang kedua!");
       return;
     }
 

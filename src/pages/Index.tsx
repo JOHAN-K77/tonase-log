@@ -89,7 +89,6 @@ const Index = () => {
           console.log("Lokasi login:", lok_log);
 
           api.post("/api/fetch-records", { printed: "0", lokasi_gudang_lokasi_id: lok_log?.id }).then((res) => {
-            console.log("Ambil semua record timbang dari database:", res.data)
             if (res.data.length > 0) {
               const log_timbang: WeighingRecord[] = res.data.map((item: any) => ({
                 id: String(item.id_wlog),
@@ -101,7 +100,7 @@ const Index = () => {
                 netto: item.netto ?? null,
                 printed: item.printed === 1,
                 jenis: jenisData.find((j) => j.id === String(item.jenis_jenis_id)),
-                lokasi: lokasiData.find((l) => l.id === String(item.lokasi_gudang_lokasi_id)) || null,
+                lokasi_gudang: lokasiData.find((l) => l.id === String(item.lokasi_gudang_lokasi_id)) || null,
                 penimbang: karyawanData.find((k) => k.id === String(item.penimbang_id)) || null,
                 pembongkar1: karyawanData.find((k) => k.id === String(item.tenaga_bongkar1_id)) || null,
                 pembongkar2: karyawanData.find((k) => k.id === String(item.tenaga_bongkar2_id)) || null,
@@ -109,6 +108,7 @@ const Index = () => {
                 tanggal: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(0, 10) : null,
                 waktu: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(11, 16) : null,
               }))
+              console.log("Ambil semua record timbang dari database:", log_timbang)
               setRecords(log_timbang)
               console.log("Hasil konversi dari database:", log_timbang);
             } else {
