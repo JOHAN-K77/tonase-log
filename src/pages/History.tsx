@@ -129,7 +129,7 @@ const History = () => {
       pembongkar2: daftarKary.find((k) => k.id === String(item.tenaga_bongkar2_id)) || null,
       pembongkar3: daftarKary.find((k) => k.id === String(item.tenaga_bongkar3_id)) || null,
       tanggal: item.waktu_timbang ? new Date(item.waktu_timbang).toISOString().slice(0, 10) : null,
-      waktu: new Date(item.waktu_timbang).toLocaleTimeString("en-GB", {
+      waktu: new Date(item.waktu_timbang + 'Z').toLocaleTimeString("en-GB", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,

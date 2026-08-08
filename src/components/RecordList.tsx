@@ -22,13 +22,13 @@ const RecordList = ({ records, selectedRecord, onSelectRecord, forWeighing = fal
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {forWeighing && (
         <div className="bg-primary text-primary-foreground px-6 py-4">
           <h2 className="text-3xl font-bold">Pencatatan</h2>
         </div>
       )}
-      <div className="flex-1 overflow-y-auto min-h-0 divide-y divide-border">
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-muted/60 scrollbar-track-transparent divide-y divide-border">
         {records.length === 0 && (
           <div className="p-6 text-center text-muted-foreground">Belum ada data</div>
         )}

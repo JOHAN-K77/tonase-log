@@ -21,7 +21,7 @@ const RecordDetail = ({ record, onClose, canPrint }: RecordDetailProps) => {
   const jmlPembongkar = [record.pembongkar1, record.pembongkar2, record.pembongkar3].filter(Boolean).length ?? 0;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <div className="bg-primary text-primary-foreground px-6 py-4 flex items-center justify-between">
         <h2 className="text-3xl font-bold">Pencatatan</h2>
         {canPrint && (
@@ -33,7 +33,7 @@ const RecordDetail = ({ record, onClose, canPrint }: RecordDetailProps) => {
           </button>
         )}
       </div>
-      <div className="flex-1 overflow-y-auto min-h-0 p-6 space-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-muted/60 scrollbar-track-transparent md:scrollbar-auto">
         {/* Desktop: X button, Mobile: back arrow */}
         <div className="flex justify-between items-start">
           <div className="space-y-4 flex-1">
