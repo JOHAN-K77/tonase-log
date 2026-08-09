@@ -85,9 +85,17 @@ const WeighingForm = ({ selectedRecord, onRecordAdded, onRecordUpdated, defaultO
     }
 
     const tonaseValue = parseInt(tonase);
-    if (tonaseValue <= 0) {
-      toast.error("Tonase tidak boleh nol atau negatif!");
+    if (tonaseValue < 0) {
+      toast.error("Tonase tidak boleh negatif!");
       return;
+    } else {
+      if (tonaseValue === 0) {
+        const confirmed = window.confirm("Apakah anda yakin ingin mengisikan 0?");
+        
+        if (!confirmed) {
+          return;
+        }
+      }
     }
 
     if (selectedRecord && tonaseValue >= selectedRecord.tonase_awal) {

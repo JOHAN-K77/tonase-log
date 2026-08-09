@@ -113,20 +113,20 @@ const History = () => {
   }
 
   function isiRecords(dataToTransfer: any[], daftarJenis: Jenis[], daftarKary: Karyawan[], daftarLok: Lokasi[]) {
-    // Parse ISO datetime (UTC) and format for display: DD/MM/YYYY and HH:mm (UTC parts)
+    // Parse ISO datetime (UTC) and format for display: MM/DD/YYYY and HH:mm (UTC parts)
     const parseIsoToDisplay = (isoStr: string | null) => {
       if (!isoStr) return { tanggal: null, waktu: null };
 
       const d = new Date(isoStr);
 
-      const day = String(d.getUTCDate()).padStart(2, '0');
       const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
       const year = d.getUTCFullYear();
 
       const hours = String(d.getUTCHours()).padStart(2, '0');
       const minutes = String(d.getUTCMinutes()).padStart(2, '0');
 
-      return { tanggal: `${day}/${month}/${year}`, waktu: `${hours}:${minutes}` };
+      return { tanggal: `${month}/${day}/${year}`, waktu: `${hours}:${minutes}` };
     };
 
     const log_timbang: WeighingRecord[] = dataToTransfer.map((item: any) => ({
