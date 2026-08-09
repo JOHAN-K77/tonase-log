@@ -113,32 +113,20 @@ const History = () => {
   }
 
   function isiRecords(dataToTransfer: any[], daftarJenis: Jenis[], daftarKary: Karyawan[], daftarLok: Lokasi[]) {
-    // Add this BEFORE the isiRecords function definition
-    const convertToGMT8 = (waktuTimbangStr: string) => {
-      // Parse the datetime string from database
-      const [dateStr, timeStr] = waktuTimbangStr.split(' ');
-      const [year, month, day] = dateStr.split('-').map(Number);
-      const [hour, minute, second] = timeStr.split(':').map(Number);
-      
-      // Create UTC date (database stores UTC)
-      const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
-      
-      // Convert to GMT+8
-      const formatter = new Intl.DateTimeFormat('en-GB', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-        timeZone: 'Asia/Singapore'
-      });
-      
-      const parts = formatter.formatToParts(utcDate);
-      const tanggal = `${parts.find(p => p.type === 'year')?.value}-${parts.find(p => p.type === 'month')?.value}-${parts.find(p => p.type === 'day')?.value}`;
-      const waktu = `${parts.find(p => p.type === 'hour')?.value}:${parts.find(p => p.type === 'minute')?.value}`;
-      
-      return { tanggal, waktu };
+    // Parse ISO datetime (UTC) and format for display: DD/MM/YYYY and HH:mm (UTC parts)
+    const parseIsoToDisplay = (isoStr: string | null) => {
+      if (!isoStr) return { tanggal: null, waktu: null };
+
+      const d = new Date(isoStr);
+
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const year = d.getUTCFullYear();
+
+      const hours = String(d.getUTCHours()).padStart(2, '0');
+      const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+
+      return { tanggal: `${day}/${month}/${year}`, waktu: `${hours}:${minutes}` };
     };
 
     const log_timbang: WeighingRecord[] = dataToTransfer.map((item: any) => ({
@@ -156,8 +144,8 @@ const History = () => {
       pembongkar1: daftarKary.find((k) => k.id === String(item.tenaga_bongkar1_id)) || null,
       pembongkar2: daftarKary.find((k) => k.id === String(item.tenaga_bongkar2_id)) || null,
       pembongkar3: daftarKary.find((k) => k.id === String(item.tenaga_bongkar3_id)) || null,
-      tanggal: convertToGMT8(item.waktu_timbang).tanggal || null,
-      waktu: convertToGMT8(item.waktu_timbang).waktu || null,
+      tanggal: parseIsoToDisplay(item.waktu_timbang).tanggal,
+      waktu: parseIsoToDisplay(item.waktu_timbang).waktu,
       supplier: null
     }))
     setRecords(log_timbang)
